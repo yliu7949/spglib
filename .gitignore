@@ -85,3 +85,7 @@ venv
 env
 .venv
 .env
+
+# IDEA
+.idea/
+install/

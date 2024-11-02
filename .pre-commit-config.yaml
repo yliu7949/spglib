@@ -2,7 +2,7 @@
 # https://github.com/pre-commit/pre-commit/issues/1375
 default_language_version:
   python: python3
-exclude: src\/msg_database.c
+exclude: src\/msg_database\.c|\.m$
 
 fail_fast: false
 repos:
