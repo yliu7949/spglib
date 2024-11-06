@@ -36,3 +36,19 @@ set_target_properties(spglib_mex PROPERTIES
         PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/spglib"
 )
+
+# 允许通过选项来决定是否编译 _spglib_test.cpp
+option(BUILD_TEST_EXECUTABLE "Build test executable" ON)
+
+# 如果开启了开关，则添加目标来编译 _spglib_test.cpp
+if(BUILD_TEST_EXECUTABLE)
+    set(TEST_SOURCE_FILES _spglib_test.cpp)
+    add_executable(test_executable ${TEST_SOURCE_FILES})
+    set_target_properties(test_executable PROPERTIES
+            OUTPUT_NAME "_test"
+            PREFIX ""
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+    target_link_libraries(test_executable PRIVATE Spglib::symspg)
+    target_include_directories(test_executable PRIVATE "${SPGLIB_ROOT}/include")
+endif()
