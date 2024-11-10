@@ -5,8 +5,43 @@
 static void show_spg_dataset(double lattice[3][3], double const origin_shift[3],
                              double position[][3], int const num_atom,
                              int const types[]);
+void show_cell(double const lattice[3][3], double const positions[][3],
+               int const types[], int const num_atoms);
 
 int main() {
+    /*
+    mexPrintf("mesh: %d, %d, %d\n", mesh[0], mesh[1], mesh[2]);
+    mexPrintf("is_shift: %d, %d, %d\n", is_shift[0], is_shift[1], is_shift[2]);
+    mexPrintf("is_time_reversal: %d\n", is_time_reversal);
+    mexPrintf("symprec: %.6f\n", symprec);
+    show_cell(lattice, position, types, num_atom);
+     */
+    double lattice[3][3] = {{0, 2, 2}, {2, 0, 2}, {2, 2, 0}};
+
+    /* 4 times larger memory space must be prepared. */
+    double position[4][3];
+    int types[4];
+
+    int num_atom_bravais;
+    int num_atom = 1;
+    double symprec = 1e-5;
+
+    position[0][0] = 0;
+    position[0][1] = 0;
+    position[0][2] = 0;
+    types[0] = 1;
+
+    show_cell(lattice, position, types, num_atom);
+
+    /* lattice, position, and types are overwritten. */
+    num_atom_bravais =
+        spg_refine_cell(lattice, position, types, num_atom, symprec);
+
+    printf("\nnum_atom_bravais: %d\n", num_atom_bravais);
+    show_cell(lattice, position, types, num_atom_bravais);
+}
+
+int main4() {
     /* MAGNDATA #0.1: LaMnO3 */
     /* BNS: Pn'ma' (62.448), MHall: -P 2ac' 2n' (546) */
     int max_size, size, i;
@@ -208,4 +243,21 @@ static void show_spg_dataset(double lattice[3][3], double const origin_shift[3],
     }
 
     spg_free_dataset(dataset);
+}
+
+void show_matrix_3d(double const lattice[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        printf("%f %f %f\n", lattice[0][i], lattice[1][i], lattice[2][i]);
+    }
+}
+
+void show_cell(double const lattice[3][3], double const positions[][3],
+               int const types[], int const num_atoms) {
+    printf("Lattice parameter:\n");
+    show_matrix_3d(lattice);
+    printf("Atomic positions:\n");
+    for (int i = 0; i < num_atoms; i++) {
+        printf("%d: %f %f %f\n", types[i], positions[i][0], positions[i][1],
+               positions[i][2]);
+    }
 }

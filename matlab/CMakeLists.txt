@@ -26,15 +26,16 @@ set(SOURCE_FILES _spglib.cpp)
 
 # 使用 MEX 编译器生成 MEX 文件
 matlab_add_mex(NAME spglib_mex SRC ${SOURCE_FILES} LINK_TO Spglib::symspg)
+target_compile_options(spglib_mex PRIVATE -Wall)
 
 # 判断 spglib 文件夹是否存在，若不存在则创建
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/spglib")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib")
 
 # 设置生成文件的后缀为 MATLAB MEX 格式
 set_target_properties(spglib_mex PROPERTIES
         OUTPUT_NAME "symspg"
         PREFIX ""
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/spglib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
 )
 
 # 允许通过选项来决定是否编译 _spglib_test.cpp

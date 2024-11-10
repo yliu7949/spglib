@@ -19,6 +19,10 @@ class SpglibFunctions {
                                           mxArray const* prhs[]);
     static void spg_get_micro_version_mex(int nlhs, mxArray* plhs[], int nrhs,
                                           mxArray const* prhs[]);
+    static void spg_get_error_code_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                       mxArray const* prhs[]);
+    static void spg_get_error_message_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                          mxArray const* prhs[]);
     static void spg_get_dataset_mex(int nlhs, mxArray* plhs[], int nrhs,
                                     mxArray const* prhs[]);
     static void spg_get_magnetic_dataset_mex(int nlhs, mxArray* plhs[],
@@ -58,10 +62,83 @@ class SpglibFunctions {
         int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
     static void spg_get_magnetic_spacegroup_type_from_symmetry_mex(
         int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_get_pointgroup_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                       mxArray const* prhs[]);
+    static void spg_get_symmetry_from_database_mex(int nlhs, mxArray* plhs[],
+                                                   int nrhs,
+                                                   mxArray const* prhs[]);
+    static void spg_get_magnetic_symmetry_from_database_mex(
+        int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_get_spacegroup_type_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                            mxArray const* prhs[]);
+    static void spg_get_magnetic_spacegroup_type_mex(int nlhs, mxArray* plhs[],
+                                                     int nrhs,
+                                                     mxArray const* prhs[]);
+    static void spg_standardize_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                         mxArray const* prhs[]);
+    static void spgat_standardize_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                           mxArray const* prhs[]);
+    static void spg_find_primitive_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                       mxArray const* prhs[]);
+    static void spgat_find_primitive_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                         mxArray const* prhs[]);
+    static void spg_refine_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                    mxArray const* prhs[]);
+    static void spgat_refine_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                      mxArray const* prhs[]);
+    static void spg_delaunay_reduce_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                        mxArray const* prhs[]);
+    static void spg_get_grid_point_from_address_mex(int nlhs, mxArray* plhs[],
+                                                    int nrhs,
+                                                    mxArray const* prhs[]);
+    static void spg_get_dense_grid_point_from_address_mex(
+        int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_get_ir_reciprocal_mesh_mex(int nlhs, mxArray* plhs[],
+                                               int nrhs, mxArray const* prhs[]);
+    static void spg_get_dense_ir_reciprocal_mesh_mex(int nlhs, mxArray* plhs[],
+                                                     int nrhs,
+                                                     mxArray const* prhs[]);
+    static void spg_get_stabilized_reciprocal_mesh_mex(int nlhs,
+                                                       mxArray* plhs[],
+                                                       int nrhs,
+                                                       mxArray const* prhs[]);
+    static void spg_get_dense_stabilized_reciprocal_mesh_mex(
+        int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_get_dense_grid_points_by_rotations_mex(
+        int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_get_dense_BZ_grid_points_by_rotations_mex(
+        int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]);
+    static void spg_relocate_BZ_grid_address_mex(int nlhs, mxArray* plhs[],
+                                                 int nrhs,
+                                                 mxArray const* prhs[]);
+    static void spg_relocate_dense_BZ_grid_address_mex(int nlhs,
+                                                       mxArray* plhs[],
+                                                       int nrhs,
+                                                       mxArray const* prhs[]);
+    static void spg_niggli_reduce_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                      mxArray const* prhs[]);
 };
 
 // 定义类型别名，用于指向静态方法的函数指针
 typedef void (*SpglibFunction)(int, mxArray*[], int, mxArray const*[]);
+
+void show_matrix_3d(double const lattice[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        mexPrintf("%f %f %f\n", lattice[0][i], lattice[1][i], lattice[2][i]);
+    }
+}
+
+void show_cell(double const lattice[3][3], double const positions[][3],
+               int const types[], int const num_atoms) {
+    mexPrintf("num_atoms: %d\n", num_atoms);
+    mexPrintf("Lattice parameter:\n");
+    show_matrix_3d(lattice);
+    mexPrintf("Atomic positions:\n");
+    for (int i = 0; i < num_atoms; i++) {
+        mexPrintf("%d: %f %f %f\n", types[i], positions[i][0], positions[i][1],
+                  positions[i][2]);
+    }
+}
 
 // mexFunction 主函数
 void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
@@ -85,6 +162,8 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
         {"spg_get_major_version", SpglibFunctions::spg_get_major_version_mex},
         {"spg_get_minor_version", SpglibFunctions::spg_get_minor_version_mex},
         {"spg_get_micro_version", SpglibFunctions::spg_get_micro_version_mex},
+        {"spg_get_error_code", SpglibFunctions::spg_get_error_code_mex},
+        {"spg_get_error_message", SpglibFunctions::spg_get_error_message_mex},
         {"spg_get_dataset", SpglibFunctions::spg_get_dataset_mex},
         {"spg_get_magnetic_dataset",
          SpglibFunctions::spg_get_magnetic_dataset_mex},
@@ -111,7 +190,43 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
          SpglibFunctions::spg_get_spacegroup_type_from_symmetry_mex},
         {"spg_get_magnetic_spacegroup_type_from_symmetry",
          SpglibFunctions::spg_get_magnetic_spacegroup_type_from_symmetry_mex},
-    };
+        {"spg_get_pointgroup", SpglibFunctions::spg_get_pointgroup_mex},
+        {"spg_get_symmetry_from_database",
+         SpglibFunctions::spg_get_symmetry_from_database_mex},
+        {"spg_get_magnetic_symmetry_from_database",
+         SpglibFunctions::spg_get_magnetic_symmetry_from_database_mex},
+        {"spg_get_spacegroup_type",
+         SpglibFunctions::spg_get_spacegroup_type_mex},
+        {"spg_get_magnetic_spacegroup_type",
+         SpglibFunctions::spg_get_magnetic_spacegroup_type_mex},
+        {"spg_standardize_cell", SpglibFunctions::spg_standardize_cell_mex},
+        {"spgat_standardize_cell", SpglibFunctions::spgat_standardize_cell_mex},
+        {"spg_find_primitive", SpglibFunctions::spg_find_primitive_mex},
+        {"spgat_find_primitive", SpglibFunctions::spgat_find_primitive_mex},
+        {"spg_refine_cell", SpglibFunctions::spg_refine_cell_mex},
+        {"spgat_refine_cell", SpglibFunctions::spgat_refine_cell_mex},
+        {"spg_delaunay_reduce", SpglibFunctions::spg_delaunay_reduce_mex},
+        {"spg_get_grid_point_from_address",
+         SpglibFunctions::spg_get_grid_point_from_address_mex},
+        {"spg_get_dense_grid_point_from_address",
+         SpglibFunctions::spg_get_dense_grid_point_from_address_mex},
+        {"spg_get_ir_reciprocal_mesh",
+         SpglibFunctions::spg_get_ir_reciprocal_mesh_mex},
+        {"spg_get_dense_ir_reciprocal_mesh",
+         SpglibFunctions::spg_get_dense_ir_reciprocal_mesh_mex},
+        {"spg_get_stabilized_reciprocal_mesh",
+         SpglibFunctions::spg_get_stabilized_reciprocal_mesh_mex},
+        {"spg_get_dense_stabilized_reciprocal_mesh",
+         SpglibFunctions::spg_get_dense_stabilized_reciprocal_mesh_mex},
+        {"spg_get_dense_grid_points_by_rotations",
+         SpglibFunctions::spg_get_dense_grid_points_by_rotations_mex},
+        {"spg_get_dense_BZ_grid_points_by_rotations",
+         SpglibFunctions::spg_get_dense_BZ_grid_points_by_rotations_mex},
+        {"spg_relocate_BZ_grid_address",
+         SpglibFunctions::spg_relocate_BZ_grid_address_mex},
+        {"spg_relocate_dense_BZ_grid_address",
+         SpglibFunctions::spg_relocate_dense_BZ_grid_address_mex},
+        {"spg_niggli_reduce", SpglibFunctions::spg_niggli_reduce_mex}};
 
     // 查找并调用对应的函数
     auto it = function_map.find(function_name);
@@ -255,6 +370,52 @@ void SpglibFunctions::spg_get_micro_version_mex(int nlhs, mxArray* plhs[],
     }
     int micro_version = spg_get_micro_version();
     plhs[0] = mxCreateDoubleScalar(static_cast<double>(micro_version));
+}
+
+// error_code = symspg('spg_get_error_code')
+void SpglibFunctions::spg_get_error_code_mex(int nlhs, mxArray* plhs[],
+                                             int nrhs, mxArray const* prhs[]) {
+    /*
+     SpglibError spg_get_error_code(void);
+    */
+
+    // 验证输入参数数量
+    if (nrhs != 0) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "No inputs expected for spg_get_error_code.");
+    }
+
+    // 调用 spg_get_error_code
+    SpglibError error_code = spg_get_error_code();
+
+    // 创建输出标量 error_code
+    plhs[0] = mxCreateDoubleScalar(static_cast<double>(error_code));
+}
+
+// error_message = symspg('spg_get_error_message', error_code)
+void SpglibFunctions::spg_get_error_message_mex(int nlhs, mxArray* plhs[],
+                                                int nrhs,
+                                                mxArray const* prhs[]) {
+    /*
+     char *spg_get_error_message(SpglibError spglib_error);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 1;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_error_message.");
+    }
+
+    // 提取和验证 spglib_error 参数
+    SpglibError spglib_error = static_cast<SpglibError>(mxGetScalar(prhs[0]));
+
+    // 调用 spg_get_error_message
+    char* error_message = spg_get_error_message(spglib_error);
+
+    // 创建输出字符串
+    plhs[0] = mxCreateString(error_message);
 }
 
 // dataset = symspg('spg_get_dataset', lattice, position, types, num_atom,
@@ -1547,6 +1708,7 @@ void SpglibFunctions::spgat_get_symmetry_with_collinear_spin_mex(
     // 输出操作数量
     plhs[3] = mxCreateDoubleScalar(static_cast<double>(n_operations));
 }
+
 // [rotations, translations, equivalent_atoms, n_operations] =
 // symspg('spgms_get_symmetry_with_collinear_spin', max_size, lattice, position,
 // types, spins, num_atom, symprec, angle_tolerance, mag_symprec)
@@ -2428,4 +2590,1814 @@ void SpglibFunctions::spg_get_magnetic_spacegroup_type_from_symmetry_mex(
                      magnetic_spacegroup_type.og_number);
     SET_SCALAR_FIELD(plhs[0], 0, "number", magnetic_spacegroup_type.number);
     SET_SCALAR_FIELD(plhs[0], 0, "type", magnetic_spacegroup_type.type);
+}
+
+// [symbol, trans_mat, result] =
+// symspg('spg_get_pointgroup', rotations, num_rotations)
+void SpglibFunctions::spg_get_pointgroup_mex(int nlhs, mxArray* plhs[],
+                                             int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_get_pointgroup(char symbol[6], int trans_mat[3][3],
+                            int const rotations[][3][3], int const
+     num_rotations);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for spg_get_pointgroup.");
+    }
+
+    // 提取和验证 rotation 参数
+    mwSize const* dims = mxGetDimensions(prhs[0]);
+    int num_operations = dims[0];
+    if (dims[1] != 3 || dims[2] != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidRotation",
+                          "Rotation matrix must have dimensions Nx3x3.");
+    }
+
+    int rotation[num_operations][3][3];
+    auto* rotation_ptr = static_cast<int32_t*>(mxGetData(prhs[0]));
+
+    for (int k = 0; k < num_operations; k++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                rotation[k][i][j] = rotation_ptr[k + i * num_operations +
+                                                 j * num_operations * 3];
+            }
+        }
+    }
+
+    char symbol[6];
+    int trans_mat[3][3];
+
+    // 调用 spg_get_pointgroup
+    int result =
+        spg_get_pointgroup(symbol, trans_mat, rotation, num_operations);
+
+    // 创建输出数组并设置字段
+    // 设置 symbol 字段
+    plhs[0] = mxCreateString(symbol);
+
+    // 输出变换矩阵 (3x3 int 数组)
+    plhs[1] = mxCreateNumericMatrix(3, 3, mxINT32_CLASS, mxREAL);
+    int* trans_mat_out = static_cast<int*>(mxGetData(plhs[1]));
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            trans_mat_out[i + j * 3] = trans_mat[i][j];
+        }
+    }
+
+    // 设置 result 字段
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(result));
+}
+
+// [rotations, translations] = symspg('spg_get_symmetry_from_database',
+// hall_number)
+void SpglibFunctions::spg_get_symmetry_from_database_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_get_symmetry_from_database(int rotations[192][3][3],
+                                        double translations[192][3],
+                                        int const hall_number);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 1;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_symmetry_from_database.");
+    }
+
+    // 提取和验证 hall_number 参数
+    if (mxGetNumberOfElements(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidHallNumber",
+                          "Hall number must be a scalar.");
+    }
+    int hall_number = static_cast<int>(mxGetScalar(prhs[0]));
+
+    // 准备输出数组
+    int rotations[192][3][3];
+    double translations[192][3];
+
+    // 调用 spg_get_symmetry_from_database
+    int num_operations =
+        spg_get_symmetry_from_database(rotations, translations, hall_number);
+
+    // 创建输出 rotation 数组 (Nx3x3 int 数组)
+    mwSize rotation_dims[3] = {static_cast<mwSize>(num_operations), 3, 3};
+    plhs[0] = mxCreateNumericArray(3, rotation_dims, mxINT32_CLASS, mxREAL);
+    int* rotations_out = static_cast<int*>(mxGetData(plhs[0]));
+    for (int k = 0; k < num_operations; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rotations_out[k + i * num_operations + j * num_operations * 3] =
+                    rotations[k][i][j];
+            }
+        }
+    }
+
+    // 创建输出 translation 数组 (Nx3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_operations, 3, mxREAL);
+    double* translations_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_operations; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            translations_out[i + j * num_operations] = translations[i][j];
+        }
+    }
+}
+
+// [rotations, translations, time_reversals] =
+// symspg('spg_get_magnetic_symmetry_from_database', uni_number, hall_number)
+void SpglibFunctions::spg_get_magnetic_symmetry_from_database_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_get_magnetic_symmetry_from_database(int rotations[384][3][3],
+                                                 double translations[384][3],
+                                                 int time_reversals[384],
+                                                 int const uni_number,
+                                                 int const hall_number);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_magnetic_symmetry_from_database.");
+    }
+
+    // 提取和验证 uni_number 参数
+    if (mxGetNumberOfElements(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidUniNumber",
+                          "Uni number must be a scalar.");
+    }
+    int uni_number = static_cast<int>(mxGetScalar(prhs[0]));
+
+    // 提取和验证 hall_number 参数
+    if (mxGetNumberOfElements(prhs[1]) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidHallNumber",
+                          "Hall number must be a scalar.");
+    }
+    int hall_number = static_cast<int>(mxGetScalar(prhs[1]));
+
+    // 准备输出数组
+    int rotations[384][3][3];
+    double translations[384][3];
+    int time_reversals[384];
+
+    // 调用 spg_get_magnetic_symmetry_from_database
+    int num_operations = spg_get_magnetic_symmetry_from_database(
+        rotations, translations, time_reversals, uni_number, hall_number);
+
+    // 创建输出 rotation 数组 (Nx3x3 int 数组)
+    mwSize rotation_dims[3] = {static_cast<mwSize>(num_operations), 3, 3};
+    plhs[0] = mxCreateNumericArray(3, rotation_dims, mxINT32_CLASS, mxREAL);
+    int* rotations_out = static_cast<int*>(mxGetData(plhs[0]));
+    for (int k = 0; k < num_operations; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rotations_out[k + i * num_operations + j * num_operations * 3] =
+                    rotations[k][i][j];
+            }
+        }
+    }
+
+    // 创建输出 translation 数组 (Nx3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_operations, 3, mxREAL);
+    double* translations_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_operations; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            translations_out[i + j * num_operations] = translations[i][j];
+        }
+    }
+
+    // 创建输出 time_reversals 数组 (N int 数组)
+    plhs[2] = mxCreateNumericMatrix(num_operations, 1, mxINT32_CLASS, mxREAL);
+    int* time_reversals_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_operations; ++i) {
+        time_reversals_out[i] = time_reversals[i];
+    }
+}
+
+// spacegroup = symspg('spg_get_spacegroup_type', hall_number)
+void SpglibFunctions::spg_get_spacegroup_type_mex(int nlhs, mxArray* plhs[],
+                                                  int nrhs,
+                                                  mxArray const* prhs[]) {
+    /*
+     SpglibSpacegroupType spg_get_spacegroup_type(int const hall_number);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 1;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_spacegroup_type.");
+    }
+
+    // 提取和验证 hall_number 参数
+    if (mxGetNumberOfElements(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidHallNumber",
+                          "Hall number must be a scalar.");
+    }
+    int hall_number = static_cast<int>(mxGetScalar(prhs[0]));
+
+    // 调用 spg_get_spacegroup_type
+    SpglibSpacegroupType spacegroup = spg_get_spacegroup_type(hall_number);
+
+    // 创建 MATLAB 结构体并设置字段
+    char const* field_names[] = {"number",
+                                 "international_short",
+                                 "international_full",
+                                 "international",
+                                 "schoenflies",
+                                 "hall_number",
+                                 "hall_symbol",
+                                 "choice",
+                                 "pointgroup_international",
+                                 "pointgroup_schoenflies",
+                                 "arithmetic_crystal_class_number",
+                                 "arithmetic_crystal_class_symbol"};
+    plhs[0] = mxCreateStructMatrix(1, 1, 12, field_names);
+
+    // 设置结构体字段
+    mxSetField(plhs[0], 0, "number",
+               mxCreateDoubleScalar(static_cast<double>(spacegroup.number)));
+    mxSetField(plhs[0], 0, "international_short",
+               mxCreateString(spacegroup.international_short));
+    mxSetField(plhs[0], 0, "international_full",
+               mxCreateString(spacegroup.international_full));
+    mxSetField(plhs[0], 0, "international",
+               mxCreateString(spacegroup.international));
+    mxSetField(plhs[0], 0, "schoenflies",
+               mxCreateString(spacegroup.schoenflies));
+    mxSetField(
+        plhs[0], 0, "hall_number",
+        mxCreateDoubleScalar(static_cast<double>(spacegroup.hall_number)));
+    mxSetField(plhs[0], 0, "hall_symbol",
+               mxCreateString(spacegroup.hall_symbol));
+    mxSetField(plhs[0], 0, "choice", mxCreateString(spacegroup.choice));
+    mxSetField(plhs[0], 0, "pointgroup_international",
+               mxCreateString(spacegroup.pointgroup_international));
+    mxSetField(plhs[0], 0, "pointgroup_schoenflies",
+               mxCreateString(spacegroup.pointgroup_schoenflies));
+    mxSetField(plhs[0], 0, "arithmetic_crystal_class_number",
+               mxCreateDoubleScalar(static_cast<double>(
+                   spacegroup.arithmetic_crystal_class_number)));
+    mxSetField(plhs[0], 0, "arithmetic_crystal_class_symbol",
+               mxCreateString(spacegroup.arithmetic_crystal_class_symbol));
+}
+
+// spacegroup = symspg('spg_get_magnetic_spacegroup_type', uni_number)
+void SpglibFunctions::spg_get_magnetic_spacegroup_type_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     SpglibMagneticSpacegroupType spg_get_magnetic_spacegroup_type(int const
+     uni_number);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 1;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_magnetic_spacegroup_type.");
+    }
+
+    // 提取和验证 uni_number 参数
+    if (mxGetNumberOfElements(prhs[0]) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidUniNumber",
+                          "Uni number must be a scalar.");
+    }
+    int uni_number = static_cast<int>(mxGetScalar(prhs[0]));
+
+    // 调用 spg_get_magnetic_spacegroup_type
+    SpglibMagneticSpacegroupType spacegroup =
+        spg_get_magnetic_spacegroup_type(uni_number);
+
+    // 创建 MATLAB 结构体并设置字段
+    char const* field_names[] = {"uni_number", "litvin_number", "bns_number",
+                                 "og_number",  "number",        "type"};
+    plhs[0] = mxCreateStructMatrix(1, 1, 6, field_names);
+
+    // 设置结构体字段
+    mxSetField(
+        plhs[0], 0, "uni_number",
+        mxCreateDoubleScalar(static_cast<double>(spacegroup.uni_number)));
+    mxSetField(
+        plhs[0], 0, "litvin_number",
+        mxCreateDoubleScalar(static_cast<double>(spacegroup.litvin_number)));
+    mxSetField(plhs[0], 0, "bns_number", mxCreateString(spacegroup.bns_number));
+    mxSetField(plhs[0], 0, "og_number", mxCreateString(spacegroup.og_number));
+    mxSetField(plhs[0], 0, "number",
+               mxCreateDoubleScalar(static_cast<double>(spacegroup.number)));
+    mxSetField(plhs[0], 0, "type",
+               mxCreateDoubleScalar(static_cast<double>(spacegroup.type)));
+}
+
+// [lattice, position, types, num_primitive_atom] =
+// symspg('spg_standardize_cell', lattice, position, types, num_atom,
+// to_primitive, no_idealize, symprec)
+void SpglibFunctions::spg_standardize_cell_mex(int nlhs, mxArray* plhs[],
+                                               int nrhs,
+                                               mxArray const* prhs[]) {
+    /*
+     int spg_standardize_cell(double lattice[3][3], double position[][3],
+                              int types[], int const num_atom,
+                              int const to_primitive, int const no_idealize,
+                              double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 7;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_standardize_cell.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证其他标量参数
+    int to_primitive = static_cast<int>(mxGetScalar(prhs[3]));
+    int no_idealize = static_cast<int>(mxGetScalar(prhs[4]));
+    double symprec = mxGetScalar(prhs[5]);
+
+    // 调用 spg_standardize_cell
+    int num_primitive_atom = spg_standardize_cell(
+        lattice, position, types, num_atom, to_primitive, no_idealize, symprec);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_primitive_atom x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_primitive_atom, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_primitive_atom] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_primitive_atom int 数组)
+    plhs[2] =
+        mxCreateNumericMatrix(num_primitive_atom, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_primitive_atom 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_primitive_atom));
+}
+
+// [lattice, position, types, num_primitive_atom] =
+// symspg('spgat_standardize_cell', lattice, position, types, num_atom,
+// to_primitive, no_idealize, symprec, angle_tolerance)
+void SpglibFunctions::spgat_standardize_cell_mex(int nlhs, mxArray* plhs[],
+                                                 int nrhs,
+                                                 mxArray const* prhs[]) {
+    /*
+     int spgat_standardize_cell(double lattice[3][3], double position[][3],
+                                int types[], int const num_atom,
+                                int const to_primitive, int const no_idealize,
+                                double const symprec, double const
+     angle_tolerance);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 8;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spgat_standardize_cell.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证其他标量参数
+    int to_primitive = static_cast<int>(mxGetScalar(prhs[3]));
+    int no_idealize = static_cast<int>(mxGetScalar(prhs[4]));
+    double symprec = mxGetScalar(prhs[5]);
+    double angle_tolerance = mxGetScalar(prhs[6]);
+
+    // 调用 spgat_standardize_cell
+    int num_primitive_atom =
+        spgat_standardize_cell(lattice, position, types, num_atom, to_primitive,
+                               no_idealize, symprec, angle_tolerance);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_primitive_atom x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_primitive_atom, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_primitive_atom] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_primitive_atom int 数组)
+    plhs[2] =
+        mxCreateNumericMatrix(num_primitive_atom, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_primitive_atom 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_primitive_atom));
+}
+
+// [lattice, position, types, num_primitive_atom] = symspg('spg_find_primitive',
+// lattice, position, types, num_atom, symprec)
+void SpglibFunctions::spg_find_primitive_mex(int nlhs, mxArray* plhs[],
+                                             int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_find_primitive(double lattice[3][3], double position[][3],
+                            int types[], int const num_atom,
+                            double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 5;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for spg_find_primitive.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证 symprec 参数
+    double symprec = mxGetScalar(prhs[4]);
+
+    // 调用 spg_find_primitive
+    int num_primitive_atom =
+        spg_find_primitive(lattice, position, types, num_atom, symprec);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_primitive_atom x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_primitive_atom, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_primitive_atom] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_primitive_atom int 数组)
+    plhs[2] =
+        mxCreateNumericMatrix(num_primitive_atom, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_primitive_atom 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_primitive_atom));
+}
+
+// [lattice, position, types, num_primitive_atom] =
+// symspg('spgat_find_primitive', lattice, position, types, num_atom, symprec,
+// angle_tolerance)
+void SpglibFunctions::spgat_find_primitive_mex(int nlhs, mxArray* plhs[],
+                                               int nrhs,
+                                               mxArray const* prhs[]) {
+    /*
+     int spgat_find_primitive(double lattice[3][3], double position[][3],
+                              int types[], int const num_atom,
+                              double const symprec, double const
+     angle_tolerance);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 6;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spgat_find_primitive.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证 symprec 参数
+    double symprec = mxGetScalar(prhs[4]);
+
+    // 提取和验证 angle_tolerance 参数
+    double angle_tolerance = mxGetScalar(prhs[5]);
+
+    // 调用 spgat_find_primitive
+    int num_primitive_atom = spgat_find_primitive(
+        lattice, position, types, num_atom, symprec, angle_tolerance);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_primitive_atom x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_primitive_atom, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_primitive_atom] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_primitive_atom int 数组)
+    plhs[2] =
+        mxCreateNumericMatrix(num_primitive_atom, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_primitive_atom; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_primitive_atom 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_primitive_atom));
+}
+
+// [lattice, position, types, num_atom_bravais] = symspg('spg_refine_cell',
+// lattice, position, types, num_atom, symprec)
+void SpglibFunctions::spg_refine_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                          mxArray const* prhs[]) {
+    /*
+     int spg_refine_cell(double lattice[3][3], double position[][3],
+                         int types[], int const num_atom,
+                         double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 5;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for spg_refine_cell.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[4 * num_atom][3];  // 这里必须设定 position
+                                       // 数组的第一个维度为 4 * num_atom
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[4 *
+              num_atom];  // 这里必须设定 types 数组的第一个维度为 4 * num_atom
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证 symprec 参数
+    double symprec = mxGetScalar(prhs[4]);
+
+    // 调用 spg_refine_cell
+    int num_atom_bravais =
+        spg_refine_cell(lattice, position, types, num_atom, symprec);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_atom_bravais x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_atom_bravais, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_atom_bravais; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_atom_bravais] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_atom_bravais int 数组)
+    plhs[2] = mxCreateNumericMatrix(num_atom_bravais, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_atom_bravais; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_atom_bravais 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_atom_bravais));
+}
+
+// [lattice, position, types, num_atom_bravais] = symspg('spgat_refine_cell',
+// lattice, position, types, num_atom, symprec, angle_tolerance)
+void SpglibFunctions::spgat_refine_cell_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                            mxArray const* prhs[]) {
+    /*
+     int spgat_refine_cell(double lattice[3][3], double position[][3],
+                           int types[], int const num_atom,
+                           double const symprec, double const angle_tolerance);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 6;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for spgat_refine_cell.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[1]);
+    if (mxGetN(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[1]);
+    double position[4 * num_atom][3];  // 这里必须设定 position
+                                       // 数组的第一个维度为 4 * num_atom
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int types[4 *
+              num_atom];  // 这里必须设定 types 数组的第一个维度为 4 * num_atom
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取和验证 symprec 参数
+    double symprec = mxGetScalar(prhs[4]);
+
+    // 提取和验证 angle_tolerance 参数
+    double angle_tolerance = mxGetScalar(prhs[5]);
+
+    // 调用 spgat_refine_cell
+    int num_atom_bravais = spgat_refine_cell(lattice, position, types, num_atom,
+                                             symprec, angle_tolerance);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 position 数组 (num_atom_bravais x 3 double 数组)
+    plhs[1] = mxCreateDoubleMatrix(num_atom_bravais, 3, mxREAL);
+    double* position_out = mxGetPr(plhs[1]);
+    for (int i = 0; i < num_atom_bravais; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position_out[i + j * num_atom_bravais] = position[i][j];
+        }
+    }
+
+    // 创建输出 types 数组 (num_atom_bravais int 数组)
+    plhs[2] = mxCreateNumericMatrix(num_atom_bravais, 1, mxINT32_CLASS, mxREAL);
+    int* types_out = static_cast<int*>(mxGetData(plhs[2]));
+    for (int i = 0; i < num_atom_bravais; ++i) {
+        types_out[i] = types[i];
+    }
+
+    // 创建输出 num_atom_bravais 标量
+    plhs[3] = mxCreateDoubleScalar(static_cast<double>(num_atom_bravais));
+}
+
+// [lattice, result] = symspg('spg_delaunay_reduce', lattice, symprec)
+void SpglibFunctions::spg_delaunay_reduce_mex(int nlhs, mxArray* plhs[],
+                                              int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_delaunay_reduce(double lattice[3][3], double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_delaunay_reduce.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 symprec 参数
+    double symprec = mxGetScalar(prhs[1]);
+
+    // 调用 spg_delaunay_reduce
+    int result = spg_delaunay_reduce(lattice, symprec);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 result 标量
+    plhs[1] = mxCreateDoubleScalar(static_cast<double>(result));
+}
+
+// grid_point_index = symspg('spg_get_grid_point_from_address', grid_address,
+// mesh)
+void SpglibFunctions::spg_get_grid_point_from_address_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_get_grid_point_from_address(int const grid_address[3], int const
+     mesh[3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_grid_point_from_address.");
+    }
+
+    // 提取和验证 grid_address 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidGridAddress",
+                          "Grid address must be an array of 3 elements.");
+    }
+    int* grid_address_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int grid_address[3] = {grid_address_ptr[0], grid_address_ptr[1],
+                           grid_address_ptr[2]};
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 调用 spg_get_grid_point_from_address
+    int grid_point_index = spg_get_grid_point_from_address(grid_address, mesh);
+
+    // 创建输出标量 grid_point_index
+    plhs[0] = mxCreateDoubleScalar(static_cast<double>(grid_point_index));
+}
+
+// dense_grid_point_index = symspg('spg_get_dense_grid_point_from_address',
+// grid_address, mesh)
+void SpglibFunctions::spg_get_dense_grid_point_from_address_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     size_t spg_get_dense_grid_point_from_address(int const grid_address[3], int
+     const mesh[3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_dense_grid_point_from_address.");
+    }
+
+    // 提取和验证 grid_address 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidGridAddress",
+                          "Grid address must be an array of 3 elements.");
+    }
+    int* grid_address_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int grid_address[3] = {grid_address_ptr[0], grid_address_ptr[1],
+                           grid_address_ptr[2]};
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 调用 spg_get_dense_grid_point_from_address
+    size_t dense_grid_point_index =
+        spg_get_dense_grid_point_from_address(grid_address, mesh);
+
+    // 创建输出标量 dense_grid_point_index
+    plhs[0] = mxCreateDoubleScalar(static_cast<double>(dense_grid_point_index));
+}
+
+// [grid_address, ir_mapping_table, num_ir_kpoints] =
+// symspg('spg_get_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal,
+// lattice, position, types, num_atom, symprec)
+void SpglibFunctions::spg_get_ir_reciprocal_mesh_mex(int nlhs, mxArray* plhs[],
+                                                     int nrhs,
+                                                     mxArray const* prhs[]) {
+    /*
+     int spg_get_ir_reciprocal_mesh(int grid_address[][3], int
+     ir_mapping_table[], int const mesh[3], int const is_shift[3], int const
+     is_time_reversal, double const lattice[3][3], double const position[][3],
+     int const types[], int const num_atom, double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 8;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_ir_reciprocal_mesh.");
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 提取 is_time_reversal 参数
+    int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[3]) != 3 || mxGetN(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[3]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[4]);
+    if (mxGetN(prhs[4]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[4]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[5]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[5]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取 symprec 参数
+    double symprec = mxGetScalar(prhs[7]);
+
+    // 创建 grid_address 数组 (最大可能数目的网格点)
+    int grid_address[mesh[0] * mesh[1] * mesh[2]][3];
+    int ir_mapping_table[mesh[0] * mesh[1] * mesh[2]];
+
+    // 调用 spg_get_ir_reciprocal_mesh
+    int num_ir_kpoints = spg_get_ir_reciprocal_mesh(
+        grid_address, ir_mapping_table, mesh, is_shift, is_time_reversal,
+        lattice, position, types, num_atom, symprec);
+
+    // 创建输出 grid_address 数组 (num_ir_kpoints x 3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(num_ir_kpoints, 3, mxREAL);
+    double* grid_address_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < num_ir_kpoints; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address_out[i + j * num_ir_kpoints] =
+                static_cast<double>(grid_address[i][j]);
+        }
+    }
+
+    // 创建输出 ir_mapping_table 数组 (num_ir_kpoints int 数组)
+    plhs[1] = mxCreateNumericMatrix(num_ir_kpoints, 1, mxINT32_CLASS, mxREAL);
+    int* ir_mapping_table_out = static_cast<int*>(mxGetData(plhs[1]));
+    for (int i = 0; i < num_ir_kpoints; ++i) {
+        ir_mapping_table_out[i] = ir_mapping_table[i];
+    }
+
+    // 创建输出 num_ir_kpoints 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_kpoints));
+}
+
+// [grid_address, ir_mapping_table, num_ir_kpoints] =
+// symspg('spg_get_dense_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal,
+// lattice, position, types, num_atom, symprec)
+void SpglibFunctions::spg_get_dense_ir_reciprocal_mesh_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     size_t spg_get_dense_ir_reciprocal_mesh(int grid_address[][3], size_t
+     ir_mapping_table[], int const mesh[3], int const is_shift[3], int const
+     is_time_reversal, double const lattice[3][3], double const position[][3],
+     int const types[], int const num_atom, double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 8;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_get_dense_ir_reciprocal_mesh.");
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 提取 is_time_reversal 参数
+    int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[3]) != 3 || mxGetN(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[3]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 position 参数
+    mwSize num_atom = mxGetM(prhs[4]);
+    if (mxGetN(prhs[4]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidPosition",
+                          "Position must be an Nx3 matrix.");
+    }
+    double* position_ptr = mxGetPr(prhs[4]);
+    double position[num_atom][3];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            position[i][j] = position_ptr[i + j * num_atom];
+        }
+    }
+
+    // 提取和验证 types 参数
+    if (mxGetNumberOfElements(prhs[5]) != num_atom) {
+        mexErrMsgIdAndTxt("Spglib:invalidTypes",
+                          "Types array size must match the number of atoms.");
+    }
+    int* types_ptr = static_cast<int*>(mxGetData(prhs[5]));
+    int types[num_atom];
+    for (mwSize i = 0; i < num_atom; ++i) {
+        types[i] = types_ptr[i];
+    }
+
+    // 提取 symprec 参数
+    double symprec = mxGetScalar(prhs[7]);
+
+    // 创建 grid_address 数组 (最大可能数目的网格点)
+    size_t num_total_grid_points =
+        static_cast<size_t>(mesh[0] * mesh[1] * mesh[2]);
+    int grid_address[num_total_grid_points][3];
+    size_t ir_mapping_table[num_total_grid_points];
+
+    // 调用 spg_get_dense_ir_reciprocal_mesh
+    size_t num_ir_kpoints = spg_get_dense_ir_reciprocal_mesh(
+        grid_address, ir_mapping_table, mesh, is_shift, is_time_reversal,
+        lattice, position, types, num_atom, symprec);
+
+    // 创建输出 grid_address 数组 (num_total_grid_points x 3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(num_total_grid_points, 3, mxREAL);
+    double* grid_address_out = mxGetPr(plhs[0]);
+    for (size_t i = 0; i < num_total_grid_points; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address_out[i + j * num_total_grid_points] =
+                static_cast<double>(grid_address[i][j]);
+        }
+    }
+
+    // 创建输出 ir_mapping_table 数组 (num_total_grid_points size_t 数组)
+    plhs[1] =
+        mxCreateNumericMatrix(num_total_grid_points, 1, mxUINT64_CLASS, mxREAL);
+    size_t* ir_mapping_table_out = static_cast<size_t*>(mxGetData(plhs[1]));
+    for (size_t i = 0; i < num_total_grid_points; ++i) {
+        ir_mapping_table_out[i] = ir_mapping_table[i];
+    }
+
+    // 创建输出 num_ir_kpoints 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_kpoints));
+}
+
+// [grid_address, ir_mapping_table, num_ir_kpoints] =
+// symspg('spg_get_stabilized_reciprocal_mesh', mesh, is_shift,
+// is_time_reversal, num_rot, rotations, num_q, qpoints)
+void SpglibFunctions::spg_get_stabilized_reciprocal_mesh_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     int spg_get_stabilized_reciprocal_mesh(int grid_address[][3], int
+     ir_mapping_table[], int const mesh[3], int const is_shift[3], int const
+     is_time_reversal, int const num_rot, int const rotations[][3][3], int const
+     num_q, double const qpoints[][3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 7;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_stabilized_reciprocal_mesh.");
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 提取 is_time_reversal 参数
+    int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
+
+    // 提取和验证 num_rot 参数
+    int num_rot = static_cast<int>(mxGetScalar(prhs[3]));
+
+    // 提取和验证 rotations 参数
+    if (mxGetNumberOfElements(prhs[4]) != num_rot * 9) {
+        mexErrMsgIdAndTxt("Spglib:invalidRotations",
+                          "Rotations must be a num_rot x 3 x 3 array.");
+    }
+    int* rotations_ptr = static_cast<int*>(mxGetData(prhs[4]));
+    int rotations[num_rot][3][3];
+    for (int k = 0; k < num_rot; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rotations[k][i][j] =
+                    rotations_ptr[k + i * num_rot + j * num_rot * 3];
+            }
+        }
+    }
+
+    // 提取和验证 num_q 参数
+    int num_q = static_cast<int>(mxGetScalar(prhs[5]));
+
+    // 提取和验证 qpoints 参数
+    if (mxGetM(prhs[6]) != num_q || mxGetN(prhs[6]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidQPoints",
+                          "Qpoints must be a num_q x 3 array.");
+    }
+    double* qpoints_ptr = mxGetPr(prhs[6]);
+    double qpoints[num_q][3];
+    for (int i = 0; i < num_q; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            qpoints[i][j] = qpoints_ptr[i + j * num_q];
+        }
+    }
+
+    // 创建 grid_address 数组 (最大可能数目的网格点)
+    int num_total_grid_points = mesh[0] * mesh[1] * mesh[2];
+    int grid_address[num_total_grid_points][3];
+    int ir_mapping_table[num_total_grid_points];
+
+    // 调用 spg_get_stabilized_reciprocal_mesh
+    int num_ir_kpoints = spg_get_stabilized_reciprocal_mesh(
+        grid_address, ir_mapping_table, mesh, is_shift, is_time_reversal,
+        num_rot, rotations, num_q, qpoints);
+
+    // 创建输出 grid_address 数组 (num_total_grid_points x 3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(num_total_grid_points, 3, mxREAL);
+    double* grid_address_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < num_total_grid_points; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address_out[i + j * num_total_grid_points] =
+                static_cast<double>(grid_address[i][j]);
+        }
+    }
+
+    // 创建输出 ir_mapping_table 数组 (num_total_grid_points int 数组)
+    plhs[1] =
+        mxCreateNumericMatrix(num_total_grid_points, 1, mxINT32_CLASS, mxREAL);
+    int* ir_mapping_table_out = static_cast<int*>(mxGetData(plhs[1]));
+    for (int i = 0; i < num_total_grid_points; ++i) {
+        ir_mapping_table_out[i] = ir_mapping_table[i];
+    }
+
+    // 创建输出 num_ir_kpoints 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_kpoints));
+}
+
+// [grid_address, ir_mapping_table, num_ir_kpoints] =
+// symspg('spg_get_dense_stabilized_reciprocal_mesh', mesh, is_shift,
+// is_time_reversal, num_rot, rotations, num_q, qpoints)
+void SpglibFunctions::spg_get_dense_stabilized_reciprocal_mesh_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     size_t spg_get_dense_stabilized_reciprocal_mesh(int grid_address[][3],
+     size_t ir_mapping_table[], int const mesh[3], int const is_shift[3], int
+     const is_time_reversal, int const num_rot, int const rotations[][3][3], int
+     const num_q, double const qpoints[][3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 7;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_dense_stabilized_reciprocal_mesh.");
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 提取 is_time_reversal 参数
+    int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
+
+    // 提取和验证 num_rot 参数
+    int num_rot = static_cast<int>(mxGetScalar(prhs[3]));
+
+    // 提取和验证 rotations 参数
+    if (mxGetNumberOfElements(prhs[4]) != num_rot * 9) {
+        mexErrMsgIdAndTxt("Spglib:invalidRotations",
+                          "Rotations must be a num_rot x 3 x 3 array.");
+    }
+    int* rotations_ptr = static_cast<int*>(mxGetData(prhs[4]));
+    int rotations[num_rot][3][3];
+    for (int k = 0; k < num_rot; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rotations[k][i][j] =
+                    rotations_ptr[k + i * num_rot + j * num_rot * 3];
+            }
+        }
+    }
+
+    // 提取和验证 num_q 参数
+    int num_q = static_cast<int>(mxGetScalar(prhs[5]));
+
+    // 提取和验证 qpoints 参数
+    if (mxGetM(prhs[6]) != num_q || mxGetN(prhs[6]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidQPoints",
+                          "Qpoints must be a num_q x 3 array.");
+    }
+    double* qpoints_ptr = mxGetPr(prhs[6]);
+    double qpoints[num_q][3];
+    for (int i = 0; i < num_q; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            qpoints[i][j] = qpoints_ptr[i + j * num_q];
+        }
+    }
+
+    // 创建 grid_address 数组 (最大可能数目的网格点)
+    size_t num_total_grid_points =
+        static_cast<size_t>(mesh[0] * mesh[1] * mesh[2]);
+    int grid_address[num_total_grid_points][3];
+    size_t ir_mapping_table[num_total_grid_points];
+
+    // 调用 spg_get_dense_stabilized_reciprocal_mesh
+    size_t num_ir_kpoints = spg_get_dense_stabilized_reciprocal_mesh(
+        grid_address, ir_mapping_table, mesh, is_shift, is_time_reversal,
+        num_rot, rotations, num_q, qpoints);
+
+    // 创建输出 grid_address 数组 (num_total_grid_points x 3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(num_total_grid_points, 3, mxREAL);
+    double* grid_address_out = mxGetPr(plhs[0]);
+    for (size_t i = 0; i < num_total_grid_points; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address_out[i + j * num_total_grid_points] =
+                static_cast<double>(grid_address[i][j]);
+        }
+    }
+
+    // 创建输出 ir_mapping_table 数组 (num_total_grid_points size_t 数组)
+    plhs[1] =
+        mxCreateNumericMatrix(num_total_grid_points, 1, mxUINT64_CLASS, mxREAL);
+    size_t* ir_mapping_table_out = static_cast<size_t*>(mxGetData(plhs[1]));
+    for (size_t i = 0; i < num_total_grid_points; ++i) {
+        ir_mapping_table_out[i] = ir_mapping_table[i];
+    }
+
+    // 创建输出 num_ir_kpoints 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_kpoints));
+}
+
+// rot_grid_points = symspg('spg_get_dense_grid_points_by_rotations',
+// address_orig, num_rot, rot_reciprocal, mesh, is_shift)
+void SpglibFunctions::spg_get_dense_grid_points_by_rotations_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     void spg_get_dense_grid_points_by_rotations(size_t rot_grid_points[], int
+     const address_orig[3], int const num_rot, int const rot_reciprocal[][3][3],
+                                                 int const mesh[3], int const
+     is_shift[3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 5;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_dense_grid_points_by_rotations.");
+    }
+
+    // 提取和验证 address_orig 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidAddressOrig",
+                          "Address_orig must be an array of 3 elements.");
+    }
+    int* address_orig_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int address_orig[3] = {address_orig_ptr[0], address_orig_ptr[1],
+                           address_orig_ptr[2]};
+
+    // 提取和验证 num_rot 参数
+    int num_rot = static_cast<int>(mxGetScalar(prhs[1]));
+
+    // 提取和验证 rot_reciprocal 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_rot * 9) {
+        mexErrMsgIdAndTxt("Spglib:invalidRotReciprocal",
+                          "Rot_reciprocal must be a num_rot x 3 x 3 array.");
+    }
+    int* rot_reciprocal_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int rot_reciprocal[num_rot][3][3];
+    for (int k = 0; k < num_rot; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rot_reciprocal[k][i][j] =
+                    rot_reciprocal_ptr[k + i * num_rot + j * num_rot * 3];
+            }
+        }
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[3]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[4]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[4]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 创建输出 rot_grid_points 数组 (num_rot size_t 数组)
+    plhs[0] = mxCreateNumericMatrix(num_rot, 1, mxUINT64_CLASS, mxREAL);
+    size_t* rot_grid_points = static_cast<size_t*>(mxGetData(plhs[0]));
+
+    // 调用 spg_get_dense_grid_points_by_rotations
+    spg_get_dense_grid_points_by_rotations(
+        rot_grid_points, address_orig, num_rot, rot_reciprocal, mesh, is_shift);
+}
+
+// rot_grid_points = symspg('spg_get_dense_BZ_grid_points_by_rotations',
+// address_orig, num_rot, rot_reciprocal, mesh, is_shift, bz_map)
+void SpglibFunctions::spg_get_dense_BZ_grid_points_by_rotations_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     void spg_get_dense_BZ_grid_points_by_rotations(size_t rot_grid_points[],
+     int const address_orig[3], int const num_rot, int const
+     rot_reciprocal[][3][3], int const mesh[3], int const is_shift[3], size_t
+     const bz_map[]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 6;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_get_dense_BZ_grid_points_by_rotations.");
+    }
+
+    // 提取和验证 address_orig 参数
+    if (mxGetNumberOfElements(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidAddressOrig",
+                          "Address_orig must be an array of 3 elements.");
+    }
+    int* address_orig_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int address_orig[3] = {address_orig_ptr[0], address_orig_ptr[1],
+                           address_orig_ptr[2]};
+
+    // 提取和验证 num_rot 参数
+    int num_rot = static_cast<int>(mxGetScalar(prhs[1]));
+
+    // 提取和验证 rot_reciprocal 参数
+    if (mxGetNumberOfElements(prhs[2]) != num_rot * 9) {
+        mexErrMsgIdAndTxt("Spglib:invalidRotReciprocal",
+                          "Rot_reciprocal must be a num_rot x 3 x 3 array.");
+    }
+    int* rot_reciprocal_ptr = static_cast<int*>(mxGetData(prhs[2]));
+    int rot_reciprocal[num_rot][3][3];
+    for (int k = 0; k < num_rot; ++k) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                rot_reciprocal[k][i][j] =
+                    rot_reciprocal_ptr[k + i * num_rot + j * num_rot * 3];
+            }
+        }
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[3]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[4]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[4]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 提取和验证 bz_map 参数
+    size_t* bz_map = static_cast<size_t*>(mxGetData(prhs[5]));
+
+    // 创建输出 rot_grid_points 数组 (num_rot size_t 数组)
+    plhs[0] = mxCreateNumericMatrix(num_rot, 1, mxUINT64_CLASS, mxREAL);
+    size_t* rot_grid_points = static_cast<size_t*>(mxGetData(plhs[0]));
+
+    // 调用 spg_get_dense_BZ_grid_points_by_rotations
+    spg_get_dense_BZ_grid_points_by_rotations(rot_grid_points, address_orig,
+                                              num_rot, rot_reciprocal, mesh,
+                                              is_shift, bz_map);
+}
+
+// [bz_grid_address, bz_map, num_ir_grid_points] =
+// symspg('spg_relocate_BZ_grid_address', grid_address, mesh, rec_lattice,
+// is_shift)
+void SpglibFunctions::spg_relocate_BZ_grid_address_mex(int nlhs,
+                                                       mxArray* plhs[],
+                                                       int nrhs,
+                                                       mxArray const* prhs[]) {
+    /*
+     int spg_relocate_BZ_grid_address(int bz_grid_address[][3], int bz_map[],
+                                      int const grid_address[][3], int const
+     mesh[3], double const rec_lattice[3][3], int const is_shift[3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 4;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumInputs",
+            "Incorrect number of inputs for spg_relocate_BZ_grid_address.");
+    }
+
+    // 提取和验证 grid_address 参数
+    mwSize num_grid_points = mxGetM(prhs[0]);
+    if (mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidGridAddress",
+                          "Grid_address must be an Nx3 array.");
+    }
+    int* grid_address_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int grid_address[num_grid_points][3];
+    for (mwSize i = 0; i < num_grid_points; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address[i][j] = grid_address_ptr[i + j * num_grid_points];
+        }
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 rec_lattice 参数
+    if (mxGetM(prhs[2]) != 3 || mxGetN(prhs[2]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidRecLattice",
+                          "Rec_lattice must be a 3x3 matrix.");
+    }
+    double* rec_lattice_ptr = mxGetPr(prhs[2]);
+    double rec_lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            rec_lattice[i][j] = rec_lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[3]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 创建输出 bz_grid_address 数组 (prod(mesh + 1) x 3 int 数组)
+    size_t bz_grid_address_size = (mesh[0] + 1) * (mesh[1] + 1) * (mesh[2] + 1);
+    plhs[0] =
+        mxCreateNumericMatrix(bz_grid_address_size, 3, mxINT32_CLASS, mxREAL);
+    int(*bz_grid_address)[3] = static_cast<int(*)[3]>(mxGetData(plhs[0]));
+
+    // 创建输出 bz_map 数组 (prod(mesh * 2) int 数组)
+    size_t bz_map_size = mesh[0] * 2 * mesh[1] * 2 * mesh[2] * 2;
+    plhs[1] = mxCreateNumericMatrix(bz_map_size, 1, mxINT32_CLASS, mxREAL);
+    int* bz_map = static_cast<int*>(mxGetData(plhs[1]));
+
+    // 调用 spg_relocate_BZ_grid_address
+    int num_ir_grid_points = spg_relocate_BZ_grid_address(
+        bz_grid_address, bz_map, grid_address, mesh, rec_lattice, is_shift);
+
+    // 创建输出 num_ir_grid_points 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_grid_points));
+}
+
+// [bz_grid_address, bz_map, num_ir_grid_points] =
+// symspg('spg_relocate_dense_BZ_grid_address', grid_address, mesh, rec_lattice,
+// is_shift)
+void SpglibFunctions::spg_relocate_dense_BZ_grid_address_mex(
+    int nlhs, mxArray* plhs[], int nrhs, mxArray const* prhs[]) {
+    /*
+     size_t spg_relocate_dense_BZ_grid_address(int bz_grid_address[][3], size_t
+     bz_map[], int const grid_address[][3], int const mesh[3], double const
+     rec_lattice[3][3], int const is_shift[3]);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 4;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for "
+                          "spg_relocate_dense_BZ_grid_address.");
+    }
+
+    // 提取和验证 grid_address 参数
+    mwSize num_grid_points = mxGetM(prhs[0]);
+    if (mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidGridAddress",
+                          "Grid_address must be an Nx3 array.");
+    }
+    int* grid_address_ptr = static_cast<int*>(mxGetData(prhs[0]));
+    int grid_address[num_grid_points][3];
+    for (mwSize i = 0; i < num_grid_points; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            grid_address[i][j] = grid_address_ptr[i + j * num_grid_points];
+        }
+    }
+
+    // 提取和验证 mesh 参数
+    if (mxGetNumberOfElements(prhs[1]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidMesh",
+                          "Mesh must be an array of 3 elements.");
+    }
+    int* mesh_ptr = static_cast<int*>(mxGetData(prhs[1]));
+    int mesh[3] = {mesh_ptr[0], mesh_ptr[1], mesh_ptr[2]};
+
+    // 提取和验证 rec_lattice 参数
+    if (mxGetM(prhs[2]) != 3 || mxGetN(prhs[2]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidRecLattice",
+                          "Rec_lattice must be a 3x3 matrix.");
+    }
+    double* rec_lattice_ptr = mxGetPr(prhs[2]);
+    double rec_lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            rec_lattice[i][j] = rec_lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取和验证 is_shift 参数
+    if (mxGetNumberOfElements(prhs[3]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidShift",
+                          "is_shift must be an array of 3 elements.");
+    }
+    int* is_shift_ptr = static_cast<int*>(mxGetData(prhs[3]));
+    int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
+
+    // 创建输出 bz_grid_address 数组 (prod(mesh + 1) x 3 int 数组)
+    size_t bz_grid_address_size = (mesh[0] + 1) * (mesh[1] + 1) * (mesh[2] + 1);
+    plhs[0] =
+        mxCreateNumericMatrix(bz_grid_address_size, 3, mxINT32_CLASS, mxREAL);
+    int(*bz_grid_address)[3] = static_cast<int(*)[3]>(mxGetData(plhs[0]));
+
+    // 创建输出 bz_map 数组 (prod(mesh * 2) size_t 数组)
+    size_t bz_map_size = mesh[0] * 2 * mesh[1] * 2 * mesh[2] * 2;
+    plhs[1] = mxCreateNumericMatrix(bz_map_size, 1, mxUINT64_CLASS, mxREAL);
+    size_t* bz_map = static_cast<size_t*>(mxGetData(plhs[1]));
+
+    // 调用 spg_relocate_dense_BZ_grid_address
+    size_t num_ir_grid_points = spg_relocate_dense_BZ_grid_address(
+        bz_grid_address, bz_map, grid_address, mesh, rec_lattice, is_shift);
+
+    // 创建输出 num_ir_grid_points 标量
+    plhs[2] = mxCreateDoubleScalar(static_cast<double>(num_ir_grid_points));
+}
+
+// [lattice, success] = symspg('spg_niggli_reduce', lattice, symprec)
+void SpglibFunctions::spg_niggli_reduce_mex(int nlhs, mxArray* plhs[], int nrhs,
+                                            mxArray const* prhs[]) {
+    /*
+     int spg_niggli_reduce(double lattice[3][3], double const symprec);
+    */
+
+    // 验证输入参数数量
+    int const expected_number_of_inputs = 2;
+    if (nrhs != expected_number_of_inputs) {
+        mexErrMsgIdAndTxt("Spglib:invalidNumInputs",
+                          "Incorrect number of inputs for spg_niggli_reduce.");
+    }
+
+    // 提取和验证 lattice 参数
+    if (mxGetM(prhs[0]) != 3 || mxGetN(prhs[0]) != 3) {
+        mexErrMsgIdAndTxt("Spglib:invalidLattice",
+                          "Lattice must be a 3x3 matrix.");
+    }
+    double* lattice_ptr = mxGetPr(prhs[0]);
+    double lattice[3][3];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice[i][j] = lattice_ptr[i + 3 * j];
+        }
+    }
+
+    // 提取 symprec 参数
+    double symprec = mxGetScalar(prhs[1]);
+
+    // 调用 spg_niggli_reduce
+    int success = spg_niggli_reduce(lattice, symprec);
+
+    // 创建输出 lattice 数组 (3x3 double 数组)
+    plhs[0] = mxCreateDoubleMatrix(3, 3, mxREAL);
+    double* lattice_out = mxGetPr(plhs[0]);
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            lattice_out[i + 3 * j] = lattice[i][j];
+        }
+    }
+
+    // 创建输出 success 标量
+    plhs[1] = mxCreateDoubleScalar(static_cast<double>(success));
 }

@@ -1,12 +1,5 @@
 classdef SpglibTest < matlab.unittest.TestCase
 
-    methods(TestClassSetup)
-        function setupPath(~)
-            spglibFolder = fullfile(fileparts(mfilename("fullpath")), "spglib");
-            addpath(spglibFolder);
-        end
-    end
-
     methods (Test)
         function getVersionTest(~)
             version = Spglib.getVersion();
@@ -36,6 +29,15 @@ classdef SpglibTest < matlab.unittest.TestCase
         function getCommitTest(~)
             commit = Spglib.getCommit();
             disp(commit);
+        end
+
+        function getErrorCodeTest(~)
+            disp(Spglib.getErrorCode());
+        end
+
+        function getErrorMessageTest(testCase)
+            error_message = Spglib.getErrorMessage(4);
+            testCase.assertEqual(error_message, 'too close distance between atoms');
         end
 
         function getDatasetTest1(testCase)
@@ -386,6 +388,304 @@ classdef SpglibTest < matlab.unittest.TestCase
             time_reversals = idivide(1 - spin_flips, 2);
             spacegroupType = Spglib.getMagneticSpacegroupTypeFromSymmetry(rotations, translations, time_reversals, num_operations, lattice, symprec);
             testCase.assertEqual(spacegroupType.uni_number, 546);
+        end
+
+        function getPointgroupTest(testCase)
+            lattice = [4, 0, 0; 0, 4, 0; 0, 0, 4];
+            position = [
+                0, 0, 0;
+                0.5, 0.5, 0.5
+                ];
+            types = [1, 1];
+            num_atom = 2;
+            symprec = 1e-5;
+
+            dataset = Spglib.getDataset(lattice, position, types, num_atom, symprec);
+            [symbol, trans_mat, ~] = Spglib.getPointgroup(dataset.rotations, dataset.n_operations);
+            testCase.assertEqual(symbol, 'm-3m');
+            testCase.assertEqual(trans_mat, int32(eye(3)));
+        end
+
+        function getSymmetryFromDatabaseTest(~)
+            Spglib.getSymmetryFromDatabase(460);
+        end
+
+        function getMagneticSymmetryFromDatabaseTest(testCase)
+            rotations = Spglib.getMagneticSymmetryFromDatabase(1242, 434);
+            testCase.assertTrue(size(rotations, 1) > 0);
+        end
+
+        function getSpacegroupTypeTest(testCase)
+            spacegroup = Spglib.getSpacegroupType(446);
+            testCase.assertEqual(spacegroup.number, 156);
+        end
+
+        function getMagneticSpacegroupType(testCase)
+            spacegroup = Spglib.getMagneticSpacegroupType(1279);
+            testCase.assertEqual(spacegroup.number, 156);
+        end
+
+        function standardizeCellTest(testCase)
+            lattice = [
+                4.8076344022756095, -2.4038172011378047, 0;
+                0, 4.1635335244786962, 0;
+                0, 0, 13.1172699198127543
+                ];
+
+            position = [
+                0.0000000000000000, 0.0000000000000000, 0.3521850942289043;
+                0.6666666666666643, 0.3333333333333357, 0.6855184275622400;
+                0.3333333333333357, 0.6666666666666643, 0.0188517608955686;
+                0.0000000000000000, 0.0000000000000000, 0.6478149057711028;
+                0.6666666666666643, 0.3333333333333357, 0.9811482391044314;
+                0.3333333333333357, 0.6666666666666643, 0.3144815724377600;
+                0.0000000000000000, 0.0000000000000000, 0.1478149057710957;
+                0.6666666666666643, 0.3333333333333357, 0.4811482391044314;
+                0.3333333333333357, 0.6666666666666643, 0.8144815724377600;
+                0.0000000000000000, 0.0000000000000000, 0.8521850942288972;
+                0.6666666666666643, 0.3333333333333357, 0.1855184275622400;
+                0.3333333333333357, 0.6666666666666643, 0.5188517608955686;
+                0.3061673906454899, 0.0000000000000000, 0.2500000000000000;
+                0.9728340573121541, 0.3333333333333357, 0.5833333333333357;
+                0.6395007239788255, 0.6666666666666643, 0.9166666666666643;
+                0.6938326093545102, 0.0000000000000000, 0.7500000000000000;
+                0.3604992760211744, 0.3333333333333357, 0.0833333333333357;
+                0.0271659426878458, 0.6666666666666643, 0.4166666666666643;
+                0.0000000000000000, 0.3061673906454899, 0.2500000000000000;
+                0.6666666666666643, 0.6395007239788255, 0.5833333333333357;
+                0.3333333333333357, 0.9728340573121541, 0.9166666666666643;
+                0.0000000000000000, 0.6938326093545102, 0.7500000000000000;
+                0.6666666666666643, 0.0271659426878458, 0.0833333333333357;
+                0.3333333333333357, 0.3604992760211744, 0.4166666666666643;
+                0.6938326093545102, 0.6938326093545102, 0.2500000000000000;
+                0.3604992760211744, 0.0271659426878458, 0.5833333333333357;
+                0.0271659426878458, 0.3604992760211744, 0.9166666666666643;
+                0.3061673906454899, 0.3061673906454899, 0.7500000000000000;
+                0.9728340573121541, 0.6395007239788255, 0.0833333333333357;
+                0.6395007239788255, 0.9728340573121541, 0.4166666666666643
+                ];
+
+            types = [ones(1, 12), 2 * ones(1, 18)];
+            num_atom = 30;
+            to_primitive = 1;
+            no_idealize = 1;
+            symprec = 1e-5;
+
+            % 调用 Spglib 函数
+            [~, ~, ~, num_primitive_atom] = Spglib.standardizeCell( ...
+                lattice, position, types, num_atom, to_primitive, no_idealize, symprec);
+            testCase.assertEqual(num_primitive_atom, 10);
+        end
+
+        function findPrimitiveCellTest1(~)
+            lattice = [
+                4, 0, 0;
+                0, 4, 0;
+                0, 0, 4
+                ];
+
+            position = [
+                0, 0, 0;
+                0.5, 0.5, 0.5;
+                0.5, 0.5, 0.5
+                ];
+
+            types = [1, 1, 1];
+            num_atom = 3;
+            symprec = 1e-5;
+
+            [~, ~, ~, num_primitive_atom] = Spglib.findPrimitive(lattice, position, types, num_atom, symprec);
+            if num_primitive_atom == 0
+                disp(Spglib.getErrorMessage(Spglib.getErrorCode()));
+            end
+        end
+
+        function findPrimitiveCellTest2(testCase)
+            lattice = 4 * eye(3);
+            position = [0, 0, 0; 0.5, 0.5, 0.5];
+            types = [1, 1];
+            num_atom = 2;
+            symprec = 1e-5;
+
+            [~, ~, ~, num_primitive_atom] = Spglib.findPrimitive(lattice, position, types, num_atom, symprec);
+            testCase.assertEqual(num_primitive_atom, 1);
+        end
+
+        function findPrimitiveCellTest3(testCase)
+            lattice = 4 * eye(3);
+            position = [0, 0, 0; 0.5, 0.5, 0.5];
+            types = [1, 1];
+            num_atom = 2;
+            symprec = 1e-5;
+            angle_tolerance = 1e-5;
+
+            [~, ~, ~, num_primitive_atom] = Spglib.findPrimitive(lattice, position, types, num_atom, symprec, angle_tolerance);
+            testCase.assertEqual(num_primitive_atom, 1);
+        end
+    
+        function refineCellTest(testCase)
+            lattice = [0, 2, 2; 2, 0, 2; 2, 2, 0];
+            position = [0, 0, 0];
+            types = 1;
+            num_atom = 1;
+            symprec = 1e-5;
+
+            [lattice, ~, ~, num_atom_bravais] = ...
+                Spglib.refineCell(lattice, position, types, num_atom, symprec);
+            testCase.assertEqual(lattice, 4 * eye(3));
+            testCase.assertEqual(num_atom_bravais, 4);
+        end
+    
+        function delaunayReduceTest(~)
+            lattice = [
+                3.0, 0.1, 0.2;
+                0.1, 3.5, 0.3;
+                0.2, 0.3, 4.0
+                ];
+            symprec = 1e-5;
+
+            Spglib.delaunayReduce(lattice, symprec);
+        end
+
+        function getGridPointFromAddressTest(~)
+            grid_address = [1, 2, 3];
+            mesh = [10, 10, 10];
+
+            grid_point_index = Spglib.getGridPointFromAddress(grid_address, mesh);
+            disp(['Grid point index: ', num2str(grid_point_index)]);
+        end
+
+        function getDenseGridPointFromAddressTest(~)
+            grid_address = [2, 3, 5];
+            mesh = [10, 10, 10];
+
+            dense_grid_point_index = Spglib.getDenseGridPointFromAddress(grid_address, mesh);
+            disp(['Grid point index: ', num2str(dense_grid_point_index)]);
+        end
+    
+        function getIrReciprocalMeshTest(testCase)
+            lattice = [
+                4, 0, 0;
+                0, 4, 0;
+                0, 0, 3
+                ];
+
+            position = [
+                0, 0, 0;
+                0.5, 0.5, 0.5;
+                0.3, 0.3, 0;
+                0.7, 0.7, 0;
+                0.2, 0.8, 0.5;
+                0.8, 0.2, 0.5
+                ];
+
+            types = [1, 1, 2, 2, 2, 2];
+            num_atom = 6;
+            mesh = [40, 40, 40];
+            is_shift = [1, 1, 1];
+            symprec = 1e-5;
+
+            [~, ~, num_ir_kpoints] = Spglib.getIrReciprocalMesh(mesh, is_shift, 1, lattice, position, types, num_atom, symprec);
+            testCase.assertEqual(num_ir_kpoints, 4200);
+        end
+
+        function getStabilizedReciprocalMeshTest(testCase)
+            lattice = [
+                4, 0, 0;
+                0, 4, 0;
+                0, 0, 3
+                ];
+            position = [
+                0, 0, 0;
+                0.5, 0.5, 0.5;
+                0.3, 0.3, 0;
+                0.7, 0.7, 0;
+                0.2, 0.8, 0.5;
+                0.8, 0.2, 0.5
+                ];
+            types = [1, 1, 2, 2, 2, 2];
+            num_atom = 6;
+            mesh = [40, 40, 40];
+            is_shift = [1, 1, 1];
+            is_time_reversal = 1;
+            symprec = 1e-5;
+            num_qpoints = 1;
+            qpoints = [0, 0.5, 0.5];
+
+            dataset = Spglib.getDataset(lattice, position, types, num_atom, symprec);
+            testCase.assertNotEmpty(dataset);
+
+            [~, ~, num_ir_kpoints] = Spglib.getStabilizedReciprocalMesh(mesh, is_shift, is_time_reversal, ...
+                dataset.n_operations, dataset.rotations, num_qpoints, qpoints);
+            testCase.assertEqual(num_ir_kpoints, 8000);
+        end
+    
+        function getDenseStabilizedReciprocalMeshTest(testCase)
+            mesh = [40, 40, 40];
+            is_shift = [0, 0, 0];
+            is_time_reversal = 1;
+            rotations = zeros(1, 3, 3);
+            rotations(1,:,:) = eye(3);
+            num_rotations = size(rotations, 1);
+            num_qpoints = 1;
+            qpoints = [0, 0, 0];
+
+            [~, ~, num_ir_kpoints] = Spglib.getDenseStabilizedReciprocalMesh(mesh, is_shift, is_time_reversal, ...
+                num_rotations, rotations, num_qpoints, qpoints);
+
+            testCase.assertTrue(num_ir_kpoints > 0);
+        end
+    
+        function relocateBZGridAddressTest(testCase)
+            rec_lattice = [
+                -0.17573761, 0.17573761, 0.17573761;
+                0.17573761, -0.17573761, 0.17573761;
+                0.17573761, 0.17573761, -0.17573761
+                ];
+
+            rotations = zeros(1, 3, 3);
+            rotations(1,:,:) = eye(3);
+            mesh = [40, 40, 40];
+            is_shift = [0, 0, 0];
+            qpoints = [0, 0, 0];
+
+            [grid_address, ~, num_ir] = ...
+                Spglib.getStabilizedReciprocalMesh(mesh, is_shift, 1, 1, rotations, 1, qpoints);
+            testCase.assertTrue(num_ir > 0);
+
+            [~, ~, num_ir_grid_points] = ...
+                Spglib.relocateBZGridAddress(grid_address, mesh, rec_lattice, is_shift);
+            testCase.assertEqual(num_ir_grid_points, 65861);
+        end
+
+        function relocateDenseBZGridAddressTest(testCase)
+            rec_lattice = [
+                -0.17573761, 0.17573761, 0.17573761;
+                0.17573761, -0.17573761, 0.17573761;
+                0.17573761, 0.17573761, -0.17573761
+                ];
+
+            rotations = zeros(1, 3, 3);
+            rotations(1,:,:) = eye(3);
+            mesh = [40, 40, 40];
+            is_shift = [0, 0, 0];
+            qpoints = [0, 0, 0];
+
+            [grid_address, ~, num_ir] = ...
+                Spglib.getDenseStabilizedReciprocalMesh(mesh, is_shift, 1, 1, rotations, 1, qpoints);
+            testCase.assertTrue(num_ir > 0);
+
+            [~, ~, num_ir_grid_points] = ...
+                Spglib.relocateDenseBZGridAddress(grid_address, mesh, rec_lattice, is_shift);
+            testCase.assertEqual(num_ir_grid_points, 65861);
+        end
+
+        function niggliReduceTest(testCase)
+            lattice = [2 1 0; 0 2 1; 1 0 2];
+            symprec = 1e-5;
+
+            [~, result] = Spglib.niggliReduce(lattice, symprec);
+            testCase.assertEqual(result, 1);
         end
     end
 end
