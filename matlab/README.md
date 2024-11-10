@@ -6,10 +6,10 @@ First, compile the `spglib` library statically using the following commands:
 
 ```shell
 cd spglib
-mkdir build && mkdir install
+mkdir build
 cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-cmake --install build --prefix="./install"
+cmake --build build --config Release
+cmake --install build --config Release --prefix="./install"
 ```
 
 Then, go into the `matlab` folder, modify the `MATLAB_ROOT` value in `CMakeLists.txt` according to your actual setup, and execute the following commands to compile:

@@ -6,10 +6,10 @@
 
 ```shell
 cd spglib
-mkdir build && mkdir install
+mkdir build
 cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-cmake --install build --prefix="./install"
+cmake --build build --config Release
+cmake --install build --config Release --prefix="./install"
 ```
 
 然后进入 `matlab` 文件夹内，根据实际情况修改 `CMakeLists.txt` 中的 `MATLAB_ROOT` 的值，执行下面的命令编译：
