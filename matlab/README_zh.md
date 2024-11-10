@@ -6,8 +6,16 @@
 
 ```shell
 cd spglib
+
+# Windows/macOS
 mkdir build
-cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+cmake --install build --config Release --prefix="./install"
+
+# Linux
+mkdir build
+cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-fPIC"
 cmake --build build --config Release
 cmake --install build --config Release --prefix="./install"
 ```
@@ -15,8 +23,14 @@ cmake --install build --config Release --prefix="./install"
 然后进入 `matlab` 文件夹内，根据实际情况修改 `CMakeLists.txt` 中的 `MATLAB_ROOT` 的值，执行下面的命令编译：
 
 ```shell
+# macOS/Linux
 mkdir build
 cmake -S . -B build
+cmake --build build
+
+# Windows
+mkdir build
+cmake -G "Ninja" -S . -B build -DCMAKE_CXX_COMPILER=clang-cl
 cmake --build build
 ```
 
