@@ -1,2 +1,4 @@
 +spglib/
 _test*
+build/
+install/

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25...3.29)
 
-# 设置项目名称和版本，并指定 C++ 语言
+# Set the project name and version, and specify the C++ language
 project(Spglib_MATLAB
         VERSION 1.0
         LANGUAGES CXX
@@ -10,38 +10,51 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# 设置 MATLAB 的根路径
+# Set the root path for MATLAB
 set(MATLAB_ROOT "/Applications/MATLAB_R2024b.app")
 find_package(Matlab REQUIRED)
 
-# 设置 Spglib 库的根路径
-set(SPGLIB_ROOT "/Users/liu/Documents/GitHub/spglib/install")
+# Set the root path for the Spglib library
+set(SPGLIB_ROOT "../install")
 find_package(Spglib REQUIRED)
 
-# 添加头文件路径
+# Add header file path
 include_directories("${SPGLIB_ROOT}/include")
 
-# 设置源文件
+# Set source files
 set(SOURCE_FILES _spglib.cpp)
 
-# 使用 MEX 编译器生成 MEX 文件
+# Use the MEX compiler to generate a MEX file
 matlab_add_mex(NAME spglib_mex SRC ${SOURCE_FILES} LINK_TO Spglib::symspg)
 target_compile_options(spglib_mex PRIVATE -Wall)
 
-# 判断 spglib 文件夹是否存在，若不存在则创建
+# Check if the +spglib folder exists, and create it if it does not
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib")
 
-# 设置生成文件的后缀为 MATLAB MEX 格式
+# Set the suffix for the generated file to MATLAB MEX format
 set_target_properties(spglib_mex PROPERTIES
         OUTPUT_NAME "symspg"
         PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
 )
 
-# 允许通过选项来决定是否编译 _spglib_test.cpp
+# Check if the install folder exists, and create it if it does not
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/install")
+
+# Copy all *.m files from the current directory to the install folder
+file(GLOB MATLAB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
+foreach(file ${MATLAB_FILES})
+    configure_file(${file} "${CMAKE_CURRENT_SOURCE_DIR}/install" COPYONLY)
+endforeach()
+
+# Copy the +spglib folder and its contents to the install folder
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
+        DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/install")
+
+# Allow the option to decide whether to compile _spglib_test.cpp
 option(BUILD_TEST_EXECUTABLE "Build test executable" ON)
 
-# 如果开启了开关，则添加目标来编译 _spglib_test.cpp
+# If the switch is turned on, add a target to compile _spglib_test.cpp
 if(BUILD_TEST_EXECUTABLE)
     set(TEST_SOURCE_FILES _spglib_test.cpp)
     add_executable(test_executable ${TEST_SOURCE_FILES})
