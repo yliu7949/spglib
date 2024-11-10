@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25...3.29)
 
-# Set the project name and version, and specify the C++ language
+# Set the project name, version, and specify the C++ language
 project(Spglib_MATLAB
         VERSION 1.0
         LANGUAGES CXX
@@ -28,41 +28,28 @@ set(SOURCE_FILES _spglib.cpp)
 matlab_add_mex(NAME spglib_mex SRC ${SOURCE_FILES} LINK_TO Spglib::symspg)
 target_compile_options(spglib_mex PRIVATE -Wall)
 
-# Check if the +spglib folder exists, and create it if it does not
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib")
-
-# Set the suffix for the generated file to MATLAB MEX format
+# Set the output properties for the generated MEX file
 set_target_properties(spglib_mex PROPERTIES
         OUTPUT_NAME "symspg"
         PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
 )
 
-# Check if the install folder exists, and create it if it does not
+# Ensure the 'install' and 'install/+spglib' directories exist
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/install")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib")
 
-# Copy all *.m files from the current directory to the install folder
+# Define MATLAB .m files to be copied
 file(GLOB MATLAB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
-foreach(file ${MATLAB_FILES})
-    configure_file(${file} "${CMAKE_CURRENT_SOURCE_DIR}/install" COPYONLY)
-endforeach()
 
-# Copy the +spglib folder and its contents to the install folder
-file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
-        DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/install")
+# Add a custom command to copy the generated MEX file to the install directory after build
+add_custom_command(TARGET spglib_mex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:spglib_mex>" "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib/"
+        COMMENT "Copying MEX file to install directory"
+)
 
-# Allow the option to decide whether to compile _spglib_test.cpp
-option(BUILD_TEST_EXECUTABLE "Build test executable" ON)
-
-# If the switch is turned on, add a target to compile _spglib_test.cpp
-if(BUILD_TEST_EXECUTABLE)
-    set(TEST_SOURCE_FILES _spglib_test.cpp)
-    add_executable(test_executable ${TEST_SOURCE_FILES})
-    set_target_properties(test_executable PROPERTIES
-            OUTPUT_NAME "_test"
-            PREFIX ""
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    )
-    target_link_libraries(test_executable PRIVATE Spglib::symspg)
-    target_include_directories(test_executable PRIVATE "${SPGLIB_ROOT}/include")
-endif()
+# Add a custom command to copy MATLAB .m files to the install directory after build
+add_custom_command(TARGET spglib_mex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${MATLAB_FILES} "${CMAKE_CURRENT_SOURCE_DIR}/install/"
+        COMMENT "Copying MATLAB .m files to install directory"
+)
