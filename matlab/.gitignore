@@ -1,4 +1,8 @@
+**/*.DS_Store
+
 +spglib/
-_test*
+spglib
 build/
+
+_test*
 install/
