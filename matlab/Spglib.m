@@ -49,9 +49,9 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                dataset = spglib.symspg('spg_get_dataset', lattice, position, types, num_atom, symprec);
+                dataset = spglib.symspg('spg_get_dataset', lattice', position, types, num_atom, symprec);
             else
-                dataset = spglib.symspg('spgat_get_dataset', lattice, position, types, num_atom, symprec, angle_tolerance);
+                dataset = spglib.symspg('spgat_get_dataset', lattice', position, types, num_atom, symprec, angle_tolerance);
             end
         end
 
@@ -71,12 +71,12 @@ classdef Spglib
 
             tensors = reshape(tensors.', [], 1);
             if isempty(angle_tolerance)
-                dataset = spglib.symspg('spg_get_magnetic_dataset', lattice, position, types, tensors, tensor_rank, num_atom, is_axial, symprec);
+                dataset = spglib.symspg('spg_get_magnetic_dataset', lattice', position, types, tensors, tensor_rank, num_atom, is_axial, symprec);
             else
                 if isempty(mag_symprec)
                     error('Spglib:getMagneticDataset', "'mag_symprec' must be used together with 'angle_tolerance'");
                 else
-                    dataset = spglib.symspg('spgms_get_magnetic_dataset', lattice, position, types, tensors, tensor_rank, num_atom, is_axial, symprec, angle_tolerance, mag_symprec);
+                    dataset = spglib.symspg('spgms_get_magnetic_dataset', lattice', position, types, tensors, tensor_rank, num_atom, is_axial, symprec, angle_tolerance, mag_symprec);
                 end
             end
         end
@@ -93,9 +93,9 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                dataset = spglib.symspg('spg_get_dataset_with_hall_number', lattice, position, types, num_atom, hall_number, symprec);
+                dataset = spglib.symspg('spg_get_dataset_with_hall_number', lattice', position, types, num_atom, hall_number, symprec);
             else
-                dataset = spglib.symspg('spgat_get_dataset_with_hall_number', lattice, position, types, num_atom, hall_number, symprec, angle_tolerance);
+                dataset = spglib.symspg('spgat_get_dataset_with_hall_number', lattice', position, types, num_atom, hall_number, symprec, angle_tolerance);
             end
         end
 
@@ -113,12 +113,12 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spg_get_symmetry_with_collinear_spin', max_size, lattice, position, types, spins, num_atom, symprec);
+                [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spg_get_symmetry_with_collinear_spin', max_size, lattice', position, types, spins, num_atom, symprec);
             else
                 if isempty(mag_symprec)
-                    [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spgat_get_symmetry_with_collinear_spin', max_size, lattice, position, types, spins, num_atom, symprec, angle_tolerance);
+                    [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spgat_get_symmetry_with_collinear_spin', max_size, lattice', position, types, spins, num_atom, symprec, angle_tolerance);
                 else
-                    [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spgms_get_symmetry_with_collinear_spin', max_size, lattice, position, types, spins, num_atom, symprec, angle_tolerance, mag_symprec);
+                    [rotations, translations, equivalent_atoms, num_operations] = spglib.symspg('spgms_get_symmetry_with_collinear_spin', max_size, lattice', position, types, spins, num_atom, symprec, angle_tolerance, mag_symprec);
                 end
             end
         end
@@ -141,12 +141,12 @@ classdef Spglib
 
             tensors = reshape(tensors.', [], 1);
             if isempty(angle_tolerance)
-                [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spg_get_symmetry_with_site_tensors', max_size, lattice, position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec);
+                [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spg_get_symmetry_with_site_tensors', max_size, lattice', position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec);
             else
                 if isempty(mag_symprec)
-                    [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spgat_get_symmetry_with_site_tensors', max_size, lattice, position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec, angle_tolerance);
+                    [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spgat_get_symmetry_with_site_tensors', max_size, lattice', position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec, angle_tolerance);
                 else
-                    [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spgms_get_symmetry_with_site_tensors', max_size, lattice, position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec, angle_tolerance, mag_symprec);
+                    [rotations, translations, equivalent_atoms, primitive_lattice, spin_flips, num_operations] = spglib.symspg('spgms_get_symmetry_with_site_tensors', max_size, lattice', position, types, tensors, tensor_rank, num_atom, with_time_reversal, is_axial, symprec, angle_tolerance, mag_symprec);
                 end
             end
         end
@@ -160,7 +160,7 @@ classdef Spglib
                 symprec (1, 1) double
             end
 
-            spacegroup_type = spglib.symspg('spg_get_spacegroup_type_from_symmetry', rotation, translation, num_operations, lattice, symprec);
+            spacegroup_type = spglib.symspg('spg_get_spacegroup_type_from_symmetry', rotation, translation, num_operations, lattice', symprec);
         end
 
         function magnetic_spacegroup_type = getMagneticSpacegroupTypeFromSymmetry(rotation, translation, time_reversals, num_operations, lattice, symprec)
@@ -173,7 +173,7 @@ classdef Spglib
                 symprec (1, 1) double
             end
 
-            magnetic_spacegroup_type = spglib.symspg('spg_get_magnetic_spacegroup_type_from_symmetry', rotation, translation, time_reversals, num_operations, lattice, symprec);
+            magnetic_spacegroup_type = spglib.symspg('spg_get_magnetic_spacegroup_type_from_symmetry', rotation, translation, time_reversals, num_operations, lattice', symprec);
         end
 
         function [symbol, trans_mat, result] = getPointgroup(rotations, num_rotations)
@@ -231,9 +231,9 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                [lattice, position, types, num_primitive_atom] = spglib.symspg('spg_standardize_cell', lattice, position, types, num_atom, to_primitive, no_idealize, symprec);
+                [lattice, position, types, num_primitive_atom] = spglib.symspg('spg_standardize_cell', lattice', position, types, num_atom, to_primitive, no_idealize, symprec);
             else
-                [lattice, position, types, num_primitive_atom] = spglib.symspg('spgat_standardize_cell', lattice, position, types, num_atom, to_primitive, no_idealize, symprec, angle_tolerance);
+                [lattice, position, types, num_primitive_atom] = spglib.symspg('spgat_standardize_cell', lattice', position, types, num_atom, to_primitive, no_idealize, symprec, angle_tolerance);
             end
         end
     
@@ -248,9 +248,9 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                [lattice, position, types, num_primitive_atom] = spglib.symspg('spg_find_primitive', lattice, position, types, num_atom, symprec);
+                [lattice, position, types, num_primitive_atom] = spglib.symspg('spg_find_primitive', lattice', position, types, num_atom, symprec);
             else
-                [lattice, position, types, num_primitive_atom] = spglib.symspg('spgat_find_primitive', lattice, position, types, num_atom, symprec, angle_tolerance);
+                [lattice, position, types, num_primitive_atom] = spglib.symspg('spgat_find_primitive', lattice', position, types, num_atom, symprec, angle_tolerance);
             end
         end
     
@@ -265,9 +265,9 @@ classdef Spglib
             end
 
             if isempty(angle_tolerance)
-                [lattice, position, types, num_atom_bravais] = spglib.symspg('spg_refine_cell', lattice, position, types, num_atom, symprec);
+                [lattice, position, types, num_atom_bravais] = spglib.symspg('spg_refine_cell', lattice', position, types, num_atom, symprec);
             else
-                [lattice, position, types, num_atom_bravais] = spglib.symspg('spgat_refine_cell', lattice, position, types, num_atom, symprec, angle_tolerance);
+                [lattice, position, types, num_atom_bravais] = spglib.symspg('spgat_refine_cell', lattice', position, types, num_atom, symprec, angle_tolerance);
             end
         end
     
@@ -277,7 +277,7 @@ classdef Spglib
                 symprec (1, 1) double {mustBePositive}
             end
 
-            [lattice, result] = spglib.symspg('spg_delaunay_reduce', lattice, symprec);
+            [lattice, result] = spglib.symspg('spg_delaunay_reduce', lattice', symprec);
         end
     
         function grid_point_index = getGridPointFromAddress(grid_address, mesh)
@@ -310,7 +310,7 @@ classdef Spglib
                 symprec (1, 1) double {mustBePositive}
             end
 
-            [grid_address, ir_mapping_table, num_ir_kpoints] = spglib.symspg('spg_get_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal, lattice, position, types, num_atom, symprec);
+            [grid_address, ir_mapping_table, num_ir_kpoints] = spglib.symspg('spg_get_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal, lattice', position, types, num_atom, symprec);
         end
 
         function [grid_address, ir_mapping_table, num_ir_kpoints] = getDenseIrReciprocalMesh(mesh, is_shift, is_time_reversal, lattice, position, types, num_atom, symprec)
@@ -325,7 +325,7 @@ classdef Spglib
                 symprec (1, 1) double {mustBePositive}
             end
 
-            [grid_address, ir_mapping_table, num_ir_kpoints] = spglib.symspg('spg_get_dense_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal, lattice, position, types, num_atom, symprec);
+            [grid_address, ir_mapping_table, num_ir_kpoints] = spglib.symspg('spg_get_dense_ir_reciprocal_mesh', mesh, is_shift, is_time_reversal, lattice', position, types, num_atom, symprec);
         end
     
         function [grid_address, ir_mapping_table, num_ir_kpoints] = getStabilizedReciprocalMesh(mesh, is_shift, is_time_reversal, num_rotations, rotations, num_qpoints, qpoints)
@@ -402,7 +402,7 @@ classdef Spglib
 
             assert(size(grid_address, 1) == prod(mesh), 'The size of grid_address does not match the number of grid points defined by mesh.');
 
-            [bz_grid_address, bz_map, num_ir_grid_points] = spglib.symspg('spg_relocate_BZ_grid_address', grid_address, mesh, rec_lattice, is_shift);
+            [bz_grid_address, bz_map, num_ir_grid_points] = spglib.symspg('spg_relocate_BZ_grid_address', grid_address, mesh, rec_lattice', is_shift);
         end
 
         function [bz_grid_address, bz_map, num_ir_grid_points] = relocateDenseBZGridAddress(grid_address, mesh, rec_lattice, is_shift)
@@ -415,7 +415,7 @@ classdef Spglib
 
             assert(size(grid_address, 1) == prod(mesh), 'The size of grid_address does not match the number of grid points defined by mesh.');
 
-            [bz_grid_address, bz_map, num_ir_grid_points] = spglib.symspg('spg_relocate_dense_BZ_grid_address', grid_address, mesh, rec_lattice, is_shift);
+            [bz_grid_address, bz_map, num_ir_grid_points] = spglib.symspg('spg_relocate_dense_BZ_grid_address', grid_address, mesh, rec_lattice', is_shift);
         end
 
         function [lattice, result] = niggliReduce(lattice, symprec)
@@ -424,7 +424,7 @@ classdef Spglib
                 symprec (1, 1) double {mustBePositive}
             end
 
-            [lattice, result] = spglib.symspg('spg_niggli_reduce', lattice, symprec);
+            [lattice, result] = spglib.symspg('spg_niggli_reduce', lattice', symprec);
         end
     end
 end

@@ -70,7 +70,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function getDatasetTest2(testCase)
-            lattice = [3.111, -1.5555, 0; 0, 2.6942050311733885, 0; 0, 0, 4.988];
+            lattice = [3.111, 0, 0; -1.5555, 2.6942050311733885, 0; 0, 0, 4.988];
             position = [
                 1.0 / 3, 2.0 / 3, 0.0;
                 2.0 / 3, 1.0 / 3, 0.5;
@@ -108,9 +108,9 @@ classdef SpglibTest < matlab.unittest.TestCase
 
         function getMagneticDatasetTest2(testCase)
             lattice = [
-                0.00000000, -5.00000000, -2.50000000;
-                0.00000000,  0.00000000,  4.33012702;
-                -4.05000000,  0.00000000,  0.00000000
+                0.00000000, 0.00000000, -4.05000000;
+                -5.00000000,  0.00000000,  0.00000000;
+                -2.50000000,  4.33012702,  0.00000000
                 ];
             positions = [
                 0.50000000, 0.33333333, 0.33333333;
@@ -140,7 +140,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function getDatasetWithHallNumberTest1(testCase)
-            lattice = [3.111, -1.5555, 0; 0, 2.6942050311733885, 0; 0, 0, 4.988];
+            lattice = [3.111, 0, 0; -1.5555, 2.6942050311733885, 0; 0, 0, 4.988];
             position = [
                 1.0 / 3, 2.0 / 3, 0.0;
                 2.0 / 3, 1.0 / 3, 0.5;
@@ -157,7 +157,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function getDatasetWithHallNumberTest2(testCase)
-            lattice = [3.111, -1.5555, 0; 0, 2.6942050311733885, 0; 0, 0, 4.988];
+            lattice = [3.111, 0, 0; -1.5555, 2.6942050311733885, 0; 0, 0, 4.988];
             position = [
                 1.0 / 3, 2.0 / 3, 0.0;
                 2.0 / 3, 1.0 / 3, 0.5;
@@ -427,8 +427,8 @@ classdef SpglibTest < matlab.unittest.TestCase
 
         function standardizeCellTest(testCase)
             lattice = [
-                4.8076344022756095, -2.4038172011378047, 0;
-                0, 4.1635335244786962, 0;
+                4.8076344022756095, 0, 0;
+                -2.4038172011378047, 4.1635335244786962, 0;
                 0, 0, 13.1172699198127543
                 ];
 
@@ -681,7 +681,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function niggliReduceTest(testCase)
-            lattice = [2 1 0; 0 2 1; 1 0 2];
+            lattice = [2 0 1; 1 2 0; 0 1 2];
             symprec = 1e-5;
 
             [~, result] = Spglib.niggliReduce(lattice, symprec);
