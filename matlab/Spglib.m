@@ -27,12 +27,12 @@ classdef Spglib
 
         function error_code = getErrorCode()
             error_code = spglib.symspg('spg_get_error_code');
-            SpglibError(error_code);
+            spglib.SpglibError(error_code);
         end
 
         function error_message = getErrorMessage(error_code)
             arguments
-                error_code SpglibError = 0
+                error_code spglib.SpglibError = 0
             end
 
             error_message = spglib.symspg('spg_get_error_message', double(error_code));

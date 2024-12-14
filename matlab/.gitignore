@@ -5,5 +5,5 @@ spglib
 build/
 
 _test*
-_spglib_test.cpp
 install/
+**/*.zip
