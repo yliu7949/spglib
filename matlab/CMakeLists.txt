@@ -10,9 +10,16 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set the root path for MATLAB
-set(MATLAB_ROOT "/Applications/MATLAB_R2024b.app")
+# Set the full MATLAB installation used to build the MEX file. Override this
+# cache entry with -DMatlab_ROOT_DIR=... when building another MATLAB release.
+set(Matlab_ROOT_DIR "/Applications/MATLAB_R2026b.app"
+        CACHE PATH "MATLAB installation root")
 find_package(Matlab REQUIRED)
+
+# _spglib.cpp is C++ code that implements the classic C mexFunction API.
+# FindMatlab otherwise treats every C++ source as a C++ MEX API target on macOS
+# and injects unresolved mexFunctionAdapter symbols.
+set(Matlab_HAS_CPP_API FALSE)
 
 # Set the root path for the Spglib library
 set(SPGLIB_ROOT "../install")
@@ -23,10 +30,20 @@ find_package(Spglib REQUIRED)
 include_directories("${SPGLIB_ROOT}/include")
 
 # Set source files
-set(SOURCE_FILES _spglib.cpp)
+set(SOURCE_FILES
+    _spglib.cpp
+    dataset_converter.cpp
+)
 
-# Use the MEX compiler to generate a MEX file
-matlab_add_mex(NAME spglib_mex SRC ${SOURCE_FILES} LINK_TO Spglib::symspg)
+# Use only the C MEX API libraries required by this source. FindMatlab may
+# otherwise add the C++ Engine and Data Array libraries, which are not needed
+# by symspg and are not portable to a MATLAB Runtime deployment.
+matlab_add_mex(
+        NAME spglib_mex
+        SRC ${SOURCE_FILES}
+        NO_IMPLICIT_LINK_TO_MATLAB_LIBRARIES
+        LINK_TO Matlab::mex Matlab::mx Spglib::symspg
+)
 target_compile_options(spglib_mex PRIVATE -Wall)
 
 # Set the output properties for the generated MEX file
@@ -34,6 +51,9 @@ set_target_properties(spglib_mex PROPERTIES
         OUTPUT_NAME "symspg"
         PREFIX ""
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
+        SKIP_BUILD_RPATH TRUE
+        BUILD_RPATH ""
+        INSTALL_RPATH ""
 )
 
 # Ensure the 'install' and 'install/+spglib' directories exist

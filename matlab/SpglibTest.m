@@ -104,6 +104,7 @@ classdef SpglibTest < matlab.unittest.TestCase
             dataset = spglib.Spglib.getMagneticDataset(lattice, position, types, spins, 0, num_atom, 0, symprec);
             testCase.assertEqual(dataset.msg_type, 1);
             testCase.assertEqual(dataset.uni_number, 1155);
+            testCase.assertNumElements(dataset.std_tensors, dataset.n_std_atoms);
         end
 
         function getMagneticDatasetTest2(testCase)
@@ -137,6 +138,7 @@ classdef SpglibTest < matlab.unittest.TestCase
 
             dataset = spglib.Spglib.getMagneticDataset(lattice, positions, types, tensors, tensor_rank, num_atoms, is_axial, symprec, angle_tolerance, mag_symprec);
             testCase.assertEqual(dataset.msg_type, 1);
+            testCase.assertNumElements(dataset.std_tensors, 3 * dataset.n_std_atoms);
         end
 
         function getDatasetWithHallNumberTest1(testCase)
