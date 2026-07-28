@@ -34,14 +34,14 @@ cmake -G "Ninja" -S . -B build -DCMAKE_CXX_COMPILER=clang-cl
 cmake --build build
 ```
 
-编译结束后会在当前文件夹下出现 `install` 文件夹。将 `install` 文件夹复制到需要使用的地方，将其添加到 MATLAB 路径后即可在 MATLAB 中调用相关函数。
+编译结束后会在当前文件夹下出现 `install` 文件夹，MATLAB 包位于 `install/+kssolv/+analysis/+spglib`。将 `install` 文件夹复制到需要使用的地方，将其添加到 MATLAB 路径后即可在 MATLAB 中调用相关函数。
 
 ## 二、使用示例
 
-`install` 文件夹下的 SpglibTest.m 文件中包含了许多具体的可供参考的使用示例。
+`install/+kssolv/+analysis/+spglib` 文件夹下的 SpglibTest.m 文件中包含了许多具体的可供参考的使用示例。
 
 例如，获取版本号：
 
 ```matlab
-disp(Spglib.getVersion())
+disp(kssolv.analysis.spglib.Spglib.getVersion())
 ```

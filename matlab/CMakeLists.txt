@@ -35,6 +35,21 @@ set(SOURCE_FILES
     dataset_converter.cpp
 )
 
+# MATLAB package layout used by both the source tree and the install bundle.
+set(MATLAB_PACKAGE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}/+kssolv/+analysis/+spglib")
+set(MATLAB_INSTALL_PACKAGE_DIR
+        "${CMAKE_CURRENT_SOURCE_DIR}/install/+kssolv/+analysis/+spglib")
+
+# Define the MATLAB source and license files explicitly so that unrelated
+# top-level .m files are never included in the install bundle.
+set(MATLAB_PACKAGE_FILES
+        "${MATLAB_PACKAGE_DIR}/Spglib.m"
+        "${MATLAB_PACKAGE_DIR}/SpglibError.m"
+        "${MATLAB_PACKAGE_DIR}/SpglibTest.m"
+        "${MATLAB_PACKAGE_DIR}/Spglib.rights"
+)
+
 # Use only the C MEX API libraries required by this source. FindMatlab may
 # otherwise add the C++ Engine and Data Array libraries, which are not needed
 # by symspg and are not portable to a MATLAB Runtime deployment.
@@ -50,24 +65,31 @@ target_compile_options(spglib_mex PRIVATE -Wall)
 set_target_properties(spglib_mex PROPERTIES
         OUTPUT_NAME "symspg"
         PREFIX ""
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
+        LIBRARY_OUTPUT_DIRECTORY "${MATLAB_INSTALL_PACKAGE_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${MATLAB_INSTALL_PACKAGE_DIR}"
         SKIP_BUILD_RPATH TRUE
         BUILD_RPATH ""
         INSTALL_RPATH ""
 )
 
-# Ensure the 'install' and 'install/+spglib' directories exist
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/install")
-file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib")
+# Ensure the package directories exist.
+file(MAKE_DIRECTORY "${MATLAB_PACKAGE_DIR}")
+file(MAKE_DIRECTORY "${MATLAB_INSTALL_PACKAGE_DIR}")
 
-# Define MATLAB .m files to be copied
-file(GLOB MATLAB_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.m")
-
-# Add a custom command to copy the generated MEX file and .m files to the install directory after build
+# Copy the generated MEX file, MATLAB sources, and Spglib license to the
+# install package after each build. Remove the obsolete package layout so a
+# rebuild cannot leave stale +spglib directories behind.
 add_custom_command(TARGET spglib_mex POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:spglib_mex>" "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib/"
-        COMMAND ${CMAKE_COMMAND} -E copy ${MATLAB_FILES} "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib/"
-        COMMENT "Copying MEX file and MATLAB .m files to install directory"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${MATLAB_INSTALL_PACKAGE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${MATLAB_PACKAGE_FILES} "${MATLAB_INSTALL_PACKAGE_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E rm -f
+                "${MATLAB_PACKAGE_DIR}/symspg.${Matlab_MEX_EXTENSION}"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory
+                "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory
+                "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib"
+        COMMENT "Installing the kssolv.analysis.spglib MATLAB package"
 )
 
 # Allow the option to decide whether to compile _spglib_test.cpp
