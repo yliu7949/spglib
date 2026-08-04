@@ -10,8 +10,8 @@ class Buffer1D {
    public:
     explicit Buffer1D(std::size_t size) : values_(new T[size]) {}
 
-    T& operator[](std::size_t index) { return values_[index]; }
-    operator T*() noexcept { return values_.get(); }
+    T &operator[](std::size_t index) { return values_[index]; }
+    operator T *() noexcept { return values_.get(); }
 
    private:
     std::unique_ptr<T[]> values_;
@@ -22,7 +22,7 @@ class Buffer2D {
    public:
     explicit Buffer2D(std::size_t rows) : values_(new T[rows][Columns]) {}
 
-    T* operator[](std::size_t row) { return values_[row]; }
+    T *operator[](std::size_t row) { return values_[row]; }
 
     using CArrayPointer = T (*)[Columns];
     operator CArrayPointer() noexcept { return values_.get(); }

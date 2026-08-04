@@ -419,7 +419,7 @@ change-of-basis transformation explained above.
 ### Rotation introduced by idealization
 
 In the idealization step presented above, the input unit cell crystal
-structure can be rotated in the Cartesian coordinates.  The rotation
+structure can be rotated in the Cartesian coordinates. The rotation
 matrix $\boldsymbol{R}$ of this rotation is defined by
 
 $$
@@ -801,7 +801,7 @@ which is (in row vectors)
 
 This is different from the standardized basis vectors **after**
 idealization $( \bar{\mathbf{a}}_\mathrm{s} \;
-\bar{\mathbf{b}}_\mathrm{s} \; \bar{\mathbf{c}}_\mathrm{s} )$.  Unless
+\bar{\mathbf{b}}_\mathrm{s} \; \bar{\mathbf{c}}_\mathrm{s} )$. Unless
 this crystal structure is distorted from the crystal structure that
 has the ideal symmetry, this means that the crystal was rotated
 rigidly in the idealization step by

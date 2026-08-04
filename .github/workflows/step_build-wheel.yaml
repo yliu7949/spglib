@@ -19,25 +19,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macOS-13, macOS-14 ]
+        os: [ ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-        # CIBW requires emulation to build for arm linux
-        # https://cibuildwheel.readthedocs.io/en/stable/faq/#emulation
-      - name: Set up QEMU for Linux-arm
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.19
+        uses: pypa/cibuildwheel@v3.3
         env:
           CIBW_BUILD: ${{ inputs.cibw_build }}
-          CIBW_ARCHS_LINUX: auto aarch64
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
@@ -46,7 +38,7 @@ jobs:
     name: 🐍 sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: hynek/build-and-inspect-python-package@v2
@@ -61,12 +53,12 @@ jobs:
       - name: Get sdist
         # Technically sdist check is already done in `build_sdist`,
         # but doing it here again for redundancy
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: Packages
           path: dist
       - name: Get wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           pattern: cibw-wheels-*
           path: dist

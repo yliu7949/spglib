@@ -716,3 +716,69 @@ def test_primitive_lattice():
         (lattice, positions, numbers, magmoms),
     )["primitive_lattice"]
     assert np.allclose(primitive_lattice1, primitive_lattice2)
+
+
+def test_better_choice_of_orientation():
+    """Check standardized cell is recovered by tmat and origin shift.
+
+    This test also examines the nice orientation of the standardized cell.
+
+    """
+    a = 5.6903014761756712
+    lattice = np.diag([a, a, a])
+    positions = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.5],
+            [0.5, 0.5, 0.0],
+            [0.5, 0.5, 0.5],
+            [0.5, 0.0, 0.0],
+            [0.0, 0.5, 0.0],
+            [0.0, 0.0, 0.5],
+        ]
+    )
+    shift = [0.1, 0.2, 0.3]
+    positions += shift
+    numbers = np.array([1, 1, 1, 1, 2, 2, 2, 2])
+    magmoms = np.array([1, 1, 1, 1, -1, -1, -1, -1])
+    dataset = get_magnetic_symmetry_dataset((lattice, positions, numbers, magmoms))
+
+    tmat = dataset.transformation_matrix
+    origin_shift = dataset.origin_shift
+    std_lattice = np.linalg.inv(tmat).T @ lattice
+    std_positions = positions @ tmat.T + origin_shift
+    std_positions -= np.rint(std_positions)
+    std_positions += np.where(std_positions < -1e-8, 1, 0)
+
+    # _show_structure(
+    #     dataset.std_lattice,
+    #     dataset.std_positions,
+    #     dataset.std_types,
+    #     dataset.std_tensors,
+    # )
+    # _show_structure(std_lattice, std_positions, numbers, magmoms)
+
+    np.testing.assert_allclose(std_lattice, dataset.std_lattice)
+    indices = []
+    for pos in std_positions:
+        diff = dataset.std_positions - pos
+        diff -= np.rint(diff)
+        dist = np.linalg.norm(diff, axis=1)
+        indices.append(np.where(dist < 1e-8)[0][0])
+    np.testing.assert_array_equal(numbers, dataset.std_types[indices])
+    np.testing.assert_allclose(magmoms, dataset.std_tensors[indices])
+
+    # check orientation
+    np.testing.assert_allclose(std_lattice, lattice)
+
+
+# def _show_structure(
+#     lattice: NDArray, positions: NDArray, types: NDArray, magmoms: NDArray
+# ):
+#     print("")
+#     for axis, v in zip(("a", "b", "c"), lattice):
+#         print(f"{axis}: {v[0]:12.8f} {v[1]:12.8f} {v[2]:12.8f}")
+#     print()
+#     for n, pos, mom in zip(types, positions, magmoms):
+#         print(f"{n}: {pos[0]:12.8f} {pos[1]:12.8f} {pos[2]:12.8f} {mom:12.8f}")

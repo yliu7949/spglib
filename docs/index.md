@@ -10,6 +10,7 @@ hidden:
    Spglib dataset <dataset>
    Magnetic spglib dataset (Experimental) <magnetic_dataset>
    Variables <variable>
+exceptions/index
    Spglib for Python <python-interface>
    Rust, Fortran, and Ruby interfaces <interface>
    Definitions and conventions <definition>
@@ -25,14 +26,19 @@ written in C. There are the [python](python-interface.md),
 
 The detailed algorithm of spglib is described the following text:
 
-- "$\texttt{Spglib}$: a software library for crystal symmetry search",
-  Atsushi Togo and Isao Tanaka,
-  <https://arxiv.org/abs/1808.01590> (written at version 1.10.4)
+- "$\texttt{Spglib}$: a software library for crystal symmetry search", Atsushi
+  Togo, Kohei Shinohara, and Isao Tanaka, Sci. Technol. Adv. Mater., Meth. 4,
+  2384822-2384836 (2024)
+  \[[link-sg](https://doi.org/10.1080/27660400.2024.2384822)\]
+- "Algorithms for magnetic symmetry operation search and identification of
+  magnetic space group from magnetic crystal structure", Kohei Shinohara,
+  Atsushi Togo, and Isao Tanaka, Acta Cryst. A 79, 390-398 (2023)
+  \[[link-msg](https://doi.org/10.1107/S2053273323005016)\]
 
 ## Requirements
 
 - C standard: As of version 2.1.0, Spglib explicitly enforces a minimum standard of
-  [C11](https://en.cppreference.com/w/c/11)
+  [C11](https://en.cppreference.com/c/11)
 
 ## Features
 

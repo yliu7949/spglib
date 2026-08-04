@@ -116,7 +116,7 @@ cell to the atomic indices of symmetrically independent atom, such as
 `[0, 0, 0, 0, 4, 4, 4, 4]`, where the symmetrically independent
 atomic indices are 0 and
 4\. We can see that the atoms from 0 to 3 are mapped to 0 and those
-from 4 to 7 are mapped to 4.  The number of elements in
+from 4 to 7 are mapped to 4. The number of elements in
 `equivalent_atoms` is same as the number of atoms in the input unit
 cell, which is given by `n_atoms`.
 

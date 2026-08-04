@@ -5,20 +5,20 @@
 
 namespace mexutil {
 
-void DatasetDeleter::operator()(SpglibDataset* dataset) const noexcept {
+void DatasetDeleter::operator()(SpglibDataset *dataset) const noexcept {
     spg_free_dataset(dataset);
 }
 
 void MagneticDatasetDeleter::operator()(
-    SpglibMagneticDataset* dataset) const noexcept {
+    SpglibMagneticDataset *dataset) const noexcept {
     spg_free_magnetic_dataset(dataset);
 }
 
 namespace {
 
-mxArray* makeDoubleVector(double const* values, mwSize size) {
-    mxArray* array = mxCreateDoubleMatrix(size, 1, mxREAL);
-    double* output = mxGetPr(array);
+mxArray *makeDoubleVector(double const *values, mwSize size) {
+    mxArray *array = mxCreateDoubleMatrix(size, 1, mxREAL);
+    double *output = mxGetPr(array);
     for (mwSize index = 0; index < size; ++index) {
         output[index] = values[index];
     }
@@ -27,8 +27,8 @@ mxArray* makeDoubleVector(double const* values, mwSize size) {
 
 }  // namespace
 
-mxArray* makeDatasetStruct(SpglibDataset const& dataset) {
-    char const* field_names[] = {
+mxArray *makeDatasetStruct(SpglibDataset const &dataset) {
+    char const *field_names[] = {
         "spacegroup_number",
         "hall_number",
         "international_symbol",
@@ -56,7 +56,7 @@ mxArray* makeDatasetStruct(SpglibDataset const& dataset) {
     };
     auto const field_count =
         static_cast<int>(sizeof(field_names) / sizeof(field_names[0]));
-    mxArray* result = mxCreateStructMatrix(1, 1, field_count, field_names);
+    mxArray *result = mxCreateStructMatrix(1, 1, field_count, field_names);
 
     setScalarField(result, 0, "spacegroup_number", dataset.spacegroup_number);
     setScalarField(result, 0, "hall_number", dataset.hall_number);
@@ -76,7 +76,7 @@ mxArray* makeDatasetStruct(SpglibDataset const& dataset) {
     setScalarField(result, 0, "n_atoms", dataset.n_atoms);
     setIntArrayField(result, 0, "wyckoffs", dataset.wyckoffs, dataset.n_atoms);
 
-    Buffer1D<char const*> site_symmetry_symbols(dataset.n_atoms);
+    Buffer1D<char const *> site_symmetry_symbols(dataset.n_atoms);
     for (int index = 0; index < dataset.n_atoms; ++index) {
         site_symmetry_symbols[index] = dataset.site_symmetry_symbols[index];
     }
@@ -106,8 +106,8 @@ mxArray* makeDatasetStruct(SpglibDataset const& dataset) {
     return result;
 }
 
-mxArray* makeMagneticDatasetStruct(SpglibMagneticDataset const& dataset) {
-    char const* field_names[] = {
+mxArray *makeMagneticDatasetStruct(SpglibMagneticDataset const &dataset) {
+    char const *field_names[] = {
         "uni_number",
         "msg_type",
         "hall_number",
@@ -126,10 +126,11 @@ mxArray* makeMagneticDatasetStruct(SpglibMagneticDataset const& dataset) {
         "std_positions",
         "std_tensors",
         "std_rotation_matrix",
+        "primitive_lattice",
     };
     auto const field_count =
         static_cast<int>(sizeof(field_names) / sizeof(field_names[0]));
-    mxArray* result = mxCreateStructMatrix(1, 1, field_count, field_names);
+    mxArray *result = mxCreateStructMatrix(1, 1, field_count, field_names);
 
     setScalarField(result, 0, "uni_number", dataset.uni_number);
     setScalarField(result, 0, "msg_type", dataset.msg_type);
@@ -163,6 +164,8 @@ mxArray* makeMagneticDatasetStruct(SpglibMagneticDataset const& dataset) {
                makeDoubleVector(dataset.std_tensors, tensor_elements));
     setDoubleMatrixField(result, 0, "std_rotation_matrix",
                          dataset.std_rotation_matrix, 3, 3);
+    setDoubleMatrixField(result, 0, "primitive_lattice",
+                         dataset.primitive_lattice, 3, 3);
     return result;
 }
 

@@ -2,43 +2,52 @@
 
 ## 一、编译 matlab 模块
 
-首先需要使用下面的命令静态编译 `spglib` 库：
+推荐在 spglib 主工程中直接启用 MATLAB 接口：
 
 ```shell
-cd spglib
-
-# Windows/macOS
-mkdir build
-cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build \
+    -DSPGLIB_SHARED_LIBS=OFF \
+    -DSPGLIB_WITH_MATLAB=ON \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
-cmake --install build --config Release --prefix="./install"
-
-# Linux
-mkdir build
-cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-fPIC"
-cmake --build build --config Release
-cmake --install build --config Release --prefix="./install"
 ```
 
-然后进入 `matlab` 文件夹内，根据实际情况修改 `CMakeLists.txt` 中的 `MATLAB_ROOT` 的值，执行下面的命令编译：
+如果 CMake 能自动找到 MATLAB，可以省略 `Matlab_ROOT_DIR`。生成的包位于
+`build/matlab/install/+kssolv/+analysis/+spglib`。
+
+MATLAB 包必须静态链接 spglib。使用 `SPGLIB_SHARED_LIBS=ON` 的配置，以及
+独立构建时解析到共享版 `Spglib::symspg` 的配置都会被拒绝。静态链接可使生成
+的包保持自包含，并适用于 MATLAB Runtime 部署。
+
+也可以单独配置 MATLAB 接口，并链接已经安装的 spglib：
 
 ```shell
-# macOS/Linux
-mkdir build
-cmake -S . -B build
-cmake --build build
-
-# Windows
-mkdir build
-cmake -G "Ninja" -S . -B build -DCMAKE_CXX_COMPILER=clang-cl
-cmake --build build
+cmake -S matlab -B matlab-build \
+    -DSpglib_DIR=/path/to/lib/cmake/Spglib \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
+cmake --build matlab-build --config Release
 ```
 
-编译结束后会在当前文件夹下出现 `install` 文件夹，MATLAB 包位于 `install/+kssolv/+analysis/+spglib`。将 `install` 文件夹复制到需要使用的地方，将其添加到 MATLAB 路径后即可在 MATLAB 中调用相关函数。
+将生成的 `install` 目录（即包含 `+kssolv` 的目录）添加到 MATLAB 路径后即可调用。
+
+同时构建并运行 C 和 MATLAB 测试：
+
+```shell
+cmake -S . -B build \
+    -DSPGLIB_SHARED_LIBS=OFF \
+    -DSPGLIB_WITH_MATLAB=ON \
+    -DSPGLIB_WITH_TESTS=ON \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
+cmake --build build --config Release
+ctest --test-dir build --output-on-failure -C Release
+```
+
+只运行 MATLAB 相关的单元测试、配置测试、独立构建测试和包布局测试时，可使用：
+`ctest --test-dir build -L matlab --output-on-failure -C Release`。
 
 ## 二、使用示例
 
-`install/+kssolv/+analysis/+spglib` 文件夹下的 SpglibTest.m 文件中包含了许多具体的可供参考的使用示例。
+`test/SpglibTest.m` 文件中包含了许多具体的可供参考的使用示例。
 
 例如，获取版本号：
 

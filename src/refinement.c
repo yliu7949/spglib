@@ -1,38 +1,6 @@
-/* Copyright (C) 2011 Atsushi Togo */
-/* All rights reserved. */
-
-/* This file is part of spglib. */
-
-/* Redistribution and use in source and binary forms, with or without */
-/* modification, are permitted provided that the following conditions */
-/* are met: */
-
-/* * Redistributions of source code must retain the above copyright */
-/*   notice, this list of conditions and the following disclaimer. */
-
-/* * Redistributions in binary form must reproduce the above copyright */
-/*   notice, this list of conditions and the following disclaimer in */
-/*   the documentation and/or other materials provided with the */
-/*   distribution. */
-
-/* * Neither the name of the spglib project nor the names of its */
-/*   contributors may be used to endorse or promote products derived */
-/*   from this software without specific prior written permission. */
-
-/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS */
-/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT */
-/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS */
-/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE */
-/* COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, */
-/* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, */
-/* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; */
-/* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER */
-/* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT */
-/* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN */
-/* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
-/* POSSIBILITY OF SUCH DAMAGE. */
-/* refinement.c */
-/* Copyright (C) 2011 Atsushi Togo */
+// Copyright (C) 2011 Atsushi Togo
+// This file is part of spglib.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "refinement.h"
 
@@ -146,7 +114,7 @@ ExactStructure *ref_get_exact_structure_and_symmetry(Spacegroup *spacegroup,
     Cell *bravais;
     Symmetry *symmetry;
     ExactStructure *exact_structure;
-    char(*site_symmetry_symbols)[7];
+    char (*site_symmetry_symbols)[7];
 
     std_mapping_to_primitive = NULL;
     wyckoffs = NULL;
@@ -172,7 +140,7 @@ ExactStructure *ref_get_exact_structure_and_symmetry(Spacegroup *spacegroup,
     }
 
     if ((site_symmetry_symbols =
-             (char(*)[7])malloc(sizeof(char[7]) * cell->size)) == NULL) {
+             (char (*)[7])malloc(sizeof(char[7]) * cell->size)) == NULL) {
         warning_memory("site_symmetry_symbols");
         goto err;
     }
@@ -287,6 +255,11 @@ void ref_free_exact_structure(ExactStructure *exstr) {
     }
 }
 
+Symmetry *ref_get_primitive_symmetry(double const t_mat[3][3],
+                                     Symmetry const *sym) {
+    return get_primitive_db_symmetry(t_mat, sym);
+}
+
 /* Return NULL if failed */
 static Cell *get_Wyckoff_positions(
     int *wyckoffs, char (*site_symmetry_symbols)[7], int *equiv_atoms,
@@ -297,7 +270,7 @@ static Cell *get_Wyckoff_positions(
     int i, j, num_prim_sym;
     int *wyckoffs_bravais, *equiv_atoms_bravais;
     int operation_index[2];
-    char(*site_symmetry_symbols_bravais)[7];
+    char (*site_symmetry_symbols_bravais)[7];
 
     debug_print("get_Wyckoff_positions\n");
 
@@ -312,7 +285,7 @@ static Cell *get_Wyckoff_positions(
         return NULL;
     }
 
-    if ((site_symmetry_symbols_bravais = (char(*)[7])malloc(
+    if ((site_symmetry_symbols_bravais = (char (*)[7])malloc(
              sizeof(char[7]) * primitive->size * 4)) == NULL) {
         warning_memory("site_symmetry_symbols_bravais");
         free(wyckoffs_bravais);
@@ -397,7 +370,7 @@ static Cell *get_bravais_exact_positions_and_lattice(
     Cell const *primitive, double const symprec) {
     int i, j, num_pure_trans;
     int *wyckoffs_prim, *equiv_atoms_prim;
-    char(*site_symmetry_symbols_prim)[7];
+    char (*site_symmetry_symbols_prim)[7];
     Symmetry *conv_sym;
     Cell *bravais, *conv_prim;
     VecDBL *exact_positions;
@@ -420,7 +393,7 @@ static Cell *get_bravais_exact_positions_and_lattice(
     }
 
     if ((site_symmetry_symbols_prim =
-             (char(*)[7])malloc(sizeof(char[7]) * primitive->size)) == NULL) {
+             (char (*)[7])malloc(sizeof(char[7]) * primitive->size)) == NULL) {
         warning_memory("site_symmetry_symbols_prim");
         free(wyckoffs_prim);
         wyckoffs_prim = NULL;
@@ -1310,7 +1283,7 @@ static VecDBL *remove_overlapping_lattice_points(double const lattice[3][3],
     return pure_trans;
 }
 
-/* Return NULL if failed */
+// Return NULL if failed
 static Symmetry *get_symmetry_in_original_cell(int const t_mat[3][3],
                                                double const inv_tmat[3][3],
                                                double const lattice[3][3],
@@ -1328,18 +1301,18 @@ static Symmetry *get_symmetry_in_original_cell(int const t_mat[3][3],
         return NULL;
     }
 
-    /* transform symmetry operations of primitive cell to those of original */
+    // transform symmetry operations of primitive cell to those of original
     size_sym_orig = 0;
     for (i = 0; i < prim_sym->size; i++) {
         /* R' = T^-1*R*T */
         mat_multiply_matrix_di3(tmp_mat, inv_tmat, prim_sym->rot[i]);
         mat_multiply_matrix_di3(tmp_rot_d, tmp_mat, t_mat);
 
-        /* In spglib, symmetry of supercell is defined by the set of symmetry */
-        /* operations that are searched among supercell lattice point group */
-        /* operations. The supercell lattice may be made by breaking the */
-        /* unit cell lattice symmetry. In this case, a part of symmetry */
-        /* operations is discarded. */
+        // In spglib, symmetry of supercell is defined by the set of symmetry
+        // operations that are searched among supercell lattice point group
+        // operations. The supercell lattice may be made by breaking the unit
+        // cell lattice symmetry. In this case, a part of symmetry operations is
+        // discarded.
         mat_cast_matrix_3d_to_3i(tmp_rot_i, tmp_rot_d);
         mat_multiply_matrix_di3(tmp_lat_i, lattice, tmp_rot_i);
         mat_multiply_matrix_d3(tmp_lat_d, lattice, tmp_rot_d);
@@ -1411,8 +1384,8 @@ static Symmetry *copy_symmetry_upon_lattice_points(VecDBL const *pure_trans,
     return symmetry;
 }
 
-/* spacegroup->bravais_lattice and spacegroup->origin_shift are overwritten */
-/* by refined ones. Return 0 if failed. */
+// spacegroup->bravais_lattice and spacegroup->origin_shift are overwritten by
+// refined ones. Return 0 if failed.
 int ref_find_similar_bravais_lattice(Spacegroup *spacegroup,
                                      double const symprec) {
     int i, j, k, rot_i, lattice_rank;
@@ -1466,22 +1439,27 @@ int ref_find_similar_bravais_lattice(Spacegroup *spacegroup,
         }
     }
 
-    /* Given a symmetry operation (W, w), Which is that for */
-    /* standardized system, i.e., (a_s, b_s, c_s) and x_s = (P, p)x, */
-    /* we view this as change of basis, i.e., inverse of it. */
-    /* (W, w)^-1 = (W^-1, -W^-1 w) because */
-    /* (W, w)x = x~ -> W^-1 x~ - W^-1 w = (W^-1, -W^-1 w)x~ = x. */
-    /* */
-    /* We can check this geometrically. */
-    /* Basis vectors are rotated and its origin is shifted by W and w. */
-    /* (a_s, b_s, c_s) W = (a_s', b_s', c_s') */
-    /* The shift is measured in the coordinated before rotation. */
-    /* Therefore */
-    /* (a_s, b_s, c_s) w = (a_s', b_s', c_s') w' -> w' = W^-1 w. */
-    /* From the definition of transformation, we have (W^-1, -W^-1 w). */
-    /* From x_s = (P, p) x and x_s' = (W^-1, -W^-1 w) x_s. */
-    /* Finally, */
-    /* (W^-1, -W^-1 w)(P, p) x = W^-1Px+W^-1p-W^-1w = (W^-1P, W^-1p-W^-1w) */
+    // Given a symmetry operation (W, w), Which is that for standardized system,
+    // i.e., (a_s, b_s, c_s) and x_s = (P, p)x, we view this as change of basis,
+    // i.e., inverse of it.
+    //
+    // (W, w)^-1 = (W^-1, -W^-1 w) because
+    //
+    // (W, w)x = x~ -> W^-1 x~ - W^-1 w = (W^-1, -W^-1 w)x~ = x.
+    //
+    // We can check this geometrically. Basis vectors are rotated and its origin
+    // is shifted by W and w.
+    //
+    // (a_s, b_s, c_s) W = (a_s', b_s', c_s')
+    //
+    // The shift is measured in the coordinated before rotation. Therefore
+    //
+    // (a_s, b_s, c_s) w = (a_s', b_s', c_s') w' -> w' = W^-1 w.
+    //
+    // From the definition of transformation, we have (W^-1, -W^-1 w). From x_s
+    // = (P, p) x and x_s' = (W^-1, -W^-1 w) x_s. Finally,
+    //
+    // (W^-1, -W^-1 w)(P, p) x = W^-1Px+W^-1p-W^-1w = (W^-1P, W^-1p-W^-1w)
     min_length = 2;
     lattice_rank = spacegroup->hall_number > 0 ? 3 : 2;
     if (rot_i > -1) {

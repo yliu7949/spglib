@@ -60,7 +60,7 @@ program spglib_example
     ! No need to deallocate SpglibDataset manually as contrasted to C
     dset = spg_get_dataset(lattice, positions, atom_types, num_atom, symprec)
     ! The space group number 186 corresponds to the wurtzite-type (P6_3mc).
-    ! See https://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-table
+    ! See https://web.archive.org/web/20250505150336/https://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-table
     print '(a)', dset%international_symbol
     print '(i0)', dset%spacegroup_number
 end program spglib_example

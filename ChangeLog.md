@@ -9,13 +9,59 @@ GitHub release pages and in the git history.
 
 <!-- SPHINX-START -->
 
-## \[Unreleased\]
+## [Unreleased]
+
+## v2.7.0 (27 Dec. 2025)
+
+### Main changes
+
+- [[#612]](https://github.com/spglib/spglib/pull/612) Improve implementation of
+  #610.
+
+- [[#610]](https://github.com/spglib/spglib/pull/610) Try to preserve the
+  Bravais lattice orientation with respect to the input one in magnetic space
+  group when there are symmetrically equivalent candidates. By this
+  `transformation_matrix`, `origin_shift`, `std_*` in `SpglibMagneticDataset`
+  can be chosen differently.
+
+### Python API
+
+- Switched to using pybind11 for generating the python bindings
+- Added free-threading support using pybind11.
+  Requires pybind11 >= 2.13.
+- Deprecated `get_error_message()` and `error` attributes.
+- Python functions can now raise exceptions. To opt-in set `spglib.OLD_ERROR_HANLDING=False`.
+  For more information see the [documentation page][python-exceptions].
+
+### Fortran API
+
+- Expose `spg_get_spacegroup_type_from_symmetry`.
+
+Users can now analyse of a set of rotation and translation operations to find the Hall number and spacegroup data.
+
+## v2.6.0 (10 Mar. 2025)
 
 ### Fortran API
 
 - Expose `spg_get_symmetry_from_database`.
 
 Users can now access the rotation and translation operations from the database, provided the Hall number.
+
+### Python API
+
+- Python package is now properly type annotated. Note that legacy `tuple` and `dict` interface still do not have
+  reliable type annotation. This will be revisited when refactoring the interface to datastructures.
+- Added runtime and annotation deprecations using `warnings.deprecated`
+
+### Main changes
+
+The python bindings are now linked to the C library at build time, see the Python changes for more details.
+
+### Python API
+
+- The PyPI wheel contains a bundled `libsymspg` library, and it *always* has priority through RPATH priority.
+- When building from source (repository or sdist) it will try to link to a system installed `spglib` and fallback to
+  the bundled version if it failed.
 
 ## v2.5.0 (9 Jul. 2024)
 
@@ -49,7 +95,7 @@ print(asdict(spgtype))
 
 ### Fixes (magnetic space group)
 
-- [\[#479\]](https://github.com/spglib/spglib/pull/479) Fix to check internal primitive symmetry search to avoid SEGV
+- [[#479]](https://github.com/spglib/spglib/pull/479) Fix to check internal primitive symmetry search to avoid SEGV
 
 ### Python API
 
@@ -93,37 +139,37 @@ print(asdict(spgtype))
 - Fixed the Python module build and installation in the pure CMake environment (without scikit-build-core)
 - Use importlib to search and load the bundled spglib C library
 - Support editable installs
-- [\[#420\]](https://github.com/spglib/spglib/pull/420) Raise `TypeError` when a given `cell` is invalid
-- [\[#420\]](https://github.com/spglib/spglib/pull/420) Add type annotation for `cell`
+- [[#420]](https://github.com/spglib/spglib/pull/420) Raise `TypeError` when a given `cell` is invalid
+- [[#420]](https://github.com/spglib/spglib/pull/420) Add type annotation for `cell`
 
 ### CI
 
-- [\[#425\]](https://github.com/spglib/spglib/pull/425) - Update to codecov v4
-- [\[#402\]](https://github.com/spglib/spglib/pull/402) - Bump artifact actions to v4
-- [\[#402\]](https://github.com/spglib/spglib/pull/402) - Build and inspect python sdist
-- [\[#431\]](https://github.com/spglib/spglib/pull/431) - Test CMake versions
-- [\[#459\]](https://github.com/spglib/spglib/pull/459) - Fix various CI issues
-- [\[#459\]](https://github.com/spglib/spglib/pull/459) - Building for MacOS 14 (M1)
+- [[#425]](https://github.com/spglib/spglib/pull/425) - Update to codecov v4
+- [[#402]](https://github.com/spglib/spglib/pull/402) - Bump artifact actions to v4
+- [[#402]](https://github.com/spglib/spglib/pull/402) - Build and inspect python sdist
+- [[#431]](https://github.com/spglib/spglib/pull/431) - Test CMake versions
+- [[#459]](https://github.com/spglib/spglib/pull/459) - Fix various CI issues
+- [[#459]](https://github.com/spglib/spglib/pull/459) - Building for MacOS 14 (M1)
 
 ## v2.3.1 (10 Feb. 2024)
 
 ### Fortran API
 
-- [\[#421\]](https://github.com/spglib/spglib/pull/421) - Allow importing Fortran API when library/consumer compilers differ
-- [\[#421\]](https://github.com/spglib/spglib/pull/421) - Fix building Fortran API from exported `spglib_f08.F90`
+- [[#421]](https://github.com/spglib/spglib/pull/421) - Allow importing Fortran API when library/consumer compilers differ
+- [[#421]](https://github.com/spglib/spglib/pull/421) - Fix building Fortran API from exported `spglib_f08.F90`
 
 ### Fixes
 
-- [\[#423\]](https://github.com/spglib/spglib/pull/423) - Update DynamicVersion to v0.4.1. Fixes CMake build when git repository does not have a tag
-- [\[#426\]](https://github.com/spglib/spglib/pull/426) - Fix Windows installation path
+- [[#423]](https://github.com/spglib/spglib/pull/423) - Update DynamicVersion to v0.4.1. Fixes CMake build when git repository does not have a tag
+- [[#426]](https://github.com/spglib/spglib/pull/426) - Fix Windows installation path
 
 ### CI
 
-- [\[#422\]](https://github.com/spglib/spglib/pull/422) - Update to ci-build-wheel v2.16
+- [[#422]](https://github.com/spglib/spglib/pull/422) - Update to ci-build-wheel v2.16
 
 ### Documentation
 
-- [\[#408\]](https://github.com/spglib/spglib/pull/408) doc: Add homebrew and spack badges
+- [[#408]](https://github.com/spglib/spglib/pull/408) doc: Add homebrew and spack badges
 
 ## v2.3.0 (27 Jan. 2024)
 
@@ -136,12 +182,12 @@ print(asdict(spgtype))
 
 ### Fixes (layer group)
 
-- [\[#378\]](https://github.com/spglib/spglib/pull/378) - fix(database): add missing unique axis choices
-- [\[#379\]](https://github.com/spglib/spglib/pull/379) - fix #377 (symmetry): fix matrix pattern for layer groups
+- [[#378]](https://github.com/spglib/spglib/pull/378) - fix(database): add missing unique axis choices
+- [[#379]](https://github.com/spglib/spglib/pull/379) - fix #377 (symmetry): fix matrix pattern for layer groups
 
 ### Fixes (magnetic space group)
 
-- [\[#382\]](https://github.com/spglib/spglib/pull/382) - Fix comparison of translation parts in MSG type identification
+- [[#382]](https://github.com/spglib/spglib/pull/382) - Fix comparison of translation parts in MSG type identification
 
 ### CMake interface
 
@@ -153,8 +199,8 @@ print(asdict(spgtype))
 
 ### Python interface
 
-- [\[#376\]](https://github.com/spglib/spglib/pull/376) Dropped Python 3.7 support
-- [\[#386\]](https://github.com/spglib/spglib/pull/386) - Drop ASE Atoms-style input
+- [[#376]](https://github.com/spglib/spglib/pull/376) Dropped Python 3.7 support
+- [[#386]](https://github.com/spglib/spglib/pull/386) - Drop ASE Atoms-style input
 - Deprecating `get_version` in favor of `__version__` and `get_spg_version`
 - Added `spg_get_version`, `spg_get_version_full`, `spg_get_commit` to get the version/commit of the spglib C library
   that is being used by the binding
@@ -162,28 +208,28 @@ print(asdict(spgtype))
 
 ### Fortran interface
 
-- [\[#396\]](https://github.com/spglib/spglib/pull/396) - feat: Reorganize Fortran interface
+- [[#396]](https://github.com/spglib/spglib/pull/396) - feat: Reorganize Fortran interface
   - Added `spg_get_version`, `spg_get_version_full`, `spg_get_commit` to get the version/commit of the spglib C library
     that is being used by the binding
   - Added `version`, `version_full`, `commit` variables containing the version/commit of the Fortran bindings
 
 ### Documentation
 
-- [\[#361\]](https://github.com/spglib/spglib/pull/361) - ci: Add doc-test
-- [\[#387\]](https://github.com/spglib/spglib/pull/387) - Merge and migrate Python API documents into docstring
-- [\[#391\]](https://github.com/spglib/spglib/pull/391) - Fix quick for autodoc2 render plugin
-- [\[#401\]](https://github.com/spglib/spglib/pull/401) - fix: RTD build
+- [[#361]](https://github.com/spglib/spglib/pull/361) - ci: Add doc-test
+- [[#387]](https://github.com/spglib/spglib/pull/387) - Merge and migrate Python API documents into docstring
+- [[#391]](https://github.com/spglib/spglib/pull/391) - Fix quick for autodoc2 render plugin
+- [[#401]](https://github.com/spglib/spglib/pull/401) - fix: RTD build
 
 ### Refactoring
 
-- [\[#271\]](https://github.com/spglib/spglib/pull/271) - Fully dynamic version from git-tag
-- [\[#392\]](https://github.com/spglib/spglib/pull/392) - Replace linter and formatter with ruff and mypy
+- [[#271]](https://github.com/spglib/spglib/pull/271) - Fully dynamic version from git-tag
+- [[#392]](https://github.com/spglib/spglib/pull/392) - Replace linter and formatter with ruff and mypy
 
 ### CI
 
-- [\[#356\]](https://github.com/spglib/spglib/pull/356) - Use downstream tmt tests
-- [\[#362\]](https://github.com/spglib/spglib/pull/362) - ci: Reorganize CI
-- [\[#393\]](https://github.com/spglib/spglib/pull/393) - ci: Enable testing for Fedora 38
+- [[#356]](https://github.com/spglib/spglib/pull/356) - Use downstream tmt tests
+- [[#362]](https://github.com/spglib/spglib/pull/362) - ci: Reorganize CI
+- [[#393]](https://github.com/spglib/spglib/pull/393) - ci: Enable testing for Fedora 38
 
 ## v2.2.0 (6 Dec. 2023)
 
@@ -286,43 +332,43 @@ In addition, this minor release includes a range of improvements across document
 
 ### Documentation
 
-- [\[#369\]](https://github.com/spglib/spglib/pull/369) - Minor update of variable.md
-- [\[#355\]](https://github.com/spglib/spglib/pull/355) - Fix example wrong results in definition.md
-- [\[#343\]](https://github.com/spglib/spglib/pull/343) - Fix BNS number in API example
-- [\[#257\]](https://github.com/spglib/spglib/pull/257) - Improve release documentation
-- [\[#332\]](https://github.com/spglib/spglib/pull/332) - Clarify definition of primitive_lattice for MSG
+- [[#369]](https://github.com/spglib/spglib/pull/369) - Minor update of variable.md
+- [[#355]](https://github.com/spglib/spglib/pull/355) - Fix example wrong results in definition.md
+- [[#343]](https://github.com/spglib/spglib/pull/343) - Fix BNS number in API example
+- [[#257]](https://github.com/spglib/spglib/pull/257) - Improve release documentation
+- [[#332]](https://github.com/spglib/spglib/pull/332) - Clarify definition of primitive_lattice for MSG
 
 ### Fixes (crystallographic database)
 
-- [\[#367\]](https://github.com/spglib/spglib/pull/367) - Fix arithmetic crystal class for -6m2P and -62mP
-- [\[#360\]](https://github.com/spglib/spglib/pull/360) - Fix typo for arithmetic crystal class 6/mmmP
-- [\[#317\]](https://github.com/spglib/spglib/pull/317) - fix #155 refactor(database): standardize Hall symbols
+- [[#367]](https://github.com/spglib/spglib/pull/367) - Fix arithmetic crystal class for -6m2P and -62mP
+- [[#360]](https://github.com/spglib/spglib/pull/360) - Fix typo for arithmetic crystal class 6/mmmP
+- [[#317]](https://github.com/spglib/spglib/pull/317) - fix #155 refactor(database): standardize Hall symbols
 
 ### Fixes (magnetic space group)
 
-- [\[#371\]](https://github.com/spglib/spglib/pull/371) - Fix order of primitive basis for get_magnetic_symmetry
-- [\[#349\]](https://github.com/spglib/spglib/pull/349) - Check pointer to magnetic dataset before free
+- [[#371]](https://github.com/spglib/spglib/pull/371) - Fix order of primitive basis for get_magnetic_symmetry
+- [[#349]](https://github.com/spglib/spglib/pull/349) - Check pointer to magnetic dataset before free
 
 ### C codebase Refactoring
 
-- [\[#347\]](https://github.com/spglib/spglib/pull/347) - Minor simplification of trim_cell
-- [\[#339\]](https://github.com/spglib/spglib/pull/339) - Increase max attempts for reduced cells
+- [[#347]](https://github.com/spglib/spglib/pull/347) - Minor simplification of trim_cell
+- [[#339]](https://github.com/spglib/spglib/pull/339) - Increase max attempts for reduced cells
 
 ### Fortran interface
 
-- [\[#357\]](https://github.com/spglib/spglib/pull/357) - fix: Fortran pkg-config file
-- [\[#342\]](https://github.com/spglib/spglib/pull/342) - Tests for noncollinear case and spg_get_symmetry_with_site_tensors of fortran interface
-- [\[#337\]](https://github.com/spglib/spglib/pull/337) - Add Fortran interface and Fortran interface tests
-- [\[#333\]](https://github.com/spglib/spglib/pull/333) - Add magnetic dataset support in Fortran
+- [[#357]](https://github.com/spglib/spglib/pull/357) - fix: Fortran pkg-config file
+- [[#342]](https://github.com/spglib/spglib/pull/342) - Tests for noncollinear case and spg_get_symmetry_with_site_tensors of fortran interface
+- [[#337]](https://github.com/spglib/spglib/pull/337) - Add Fortran interface and Fortran interface tests
+- [[#333]](https://github.com/spglib/spglib/pull/333) - Add magnetic dataset support in Fortran
 
 ### Julia interface
 
-- [\[#341\]](https://github.com/spglib/spglib/pull/341) - fix: Julia packaging issues
-- [\[#340\]](https://github.com/spglib/spglib/pull/340) - Add "Julia interface" to interface.md
+- [[#341]](https://github.com/spglib/spglib/pull/341) - fix: Julia packaging issues
+- [[#340]](https://github.com/spglib/spglib/pull/340) - Add "Julia interface" to interface.md
 
 ### CI and releasing
 
-- [\[#358\]](https://github.com/spglib/spglib/pull/358) - fix: windows-ci
+- [[#358]](https://github.com/spglib/spglib/pull/358) - fix: windows-ci
 
 ## v2.1.0 (10 Sep. 2023)
 
@@ -330,95 +376,95 @@ This minor release includes a lot of improvements in build system and CI.
 
 ### Documentation and examples
 
-- [\[#242\]](https://github.com/spglib/spglib/pull/242) - Update examples in C and Fortran
-- [\[#245\]](https://github.com/spglib/spglib/pull/245) - Readthedocs
-- [\[#246\]](https://github.com/spglib/spglib/pull/246) - Clean up and documentation fix
-- [\[#253\]](https://github.com/spglib/spglib/pull/253) - Update documentation link
-- [\[#263\]](https://github.com/spglib/spglib/pull/263) - Redirect GitHub pages to Read the Docs
-- [\[#265\]](https://github.com/spglib/spglib/pull/265) - Clarify non-collinear magmoms in Python interface
-- [\[#283\]](https://github.com/spglib/spglib/pull/283) - Document behavior for type-II magnetic crystal structure
-- [\[#322\]](https://github.com/spglib/spglib/pull/322) - Add citation info
+- [[#242]](https://github.com/spglib/spglib/pull/242) - Update examples in C and Fortran
+- [[#245]](https://github.com/spglib/spglib/pull/245) - Readthedocs
+- [[#246]](https://github.com/spglib/spglib/pull/246) - Clean up and documentation fix
+- [[#253]](https://github.com/spglib/spglib/pull/253) - Update documentation link
+- [[#263]](https://github.com/spglib/spglib/pull/263) - Redirect GitHub pages to Read the Docs
+- [[#265]](https://github.com/spglib/spglib/pull/265) - Clarify non-collinear magmoms in Python interface
+- [[#283]](https://github.com/spglib/spglib/pull/283) - Document behavior for type-II magnetic crystal structure
+- [[#322]](https://github.com/spglib/spglib/pull/322) - Add citation info
 
 ### Fixes (layer group)
 
-- [\[#199\]](https://github.com/spglib/spglib/pull/199) - Fix a bug in layer groups.
-- [\[#201\]](https://github.com/spglib/spglib/pull/201) - Add layer group python interface
-- [\[#209\]](https://github.com/spglib/spglib/pull/209) - fix(layergroup): fix unique axis of monocli system
-- [\[#288\]](https://github.com/spglib/spglib/pull/288) - Initial refactor for layer group implementation
+- [[#199]](https://github.com/spglib/spglib/pull/199) - Fix a bug in layer groups.
+- [[#201]](https://github.com/spglib/spglib/pull/201) - Add layer group python interface
+- [[#209]](https://github.com/spglib/spglib/pull/209) - fix(layergroup): fix unique axis of monocli system
+- [[#288]](https://github.com/spglib/spglib/pull/288) - Initial refactor for layer group implementation
 
 ### Fixes (magnetic space group)
 
-- [\[#267\]](https://github.com/spglib/spglib/pull/267) - Validate type of MSG
+- [[#267]](https://github.com/spglib/spglib/pull/267) - Validate type of MSG
 
 ### C codebase Refactoring
 
-- [\[#223\]](https://github.com/spglib/spglib/pull/223) - Rename periodic_niggli_reduce to niggli_reduce_periodic
-- [\[#258\]](https://github.com/spglib/spglib/pull/258) - Change `SPGCONST` to `const`
-- [\[#278\]](https://github.com/spglib/spglib/pull/278) - Revive compiler warnings
-- [\[#281\]](https://github.com/spglib/spglib/pull/281) - Fix message and remove redundant lines
-- [\[#284\]](https://github.com/spglib/spglib/pull/284) - Ensure thread-safety
-- [\[#293\]](https://github.com/spglib/spglib/pull/293) - Refactor debug-warning rules
+- [[#223]](https://github.com/spglib/spglib/pull/223) - Rename periodic_niggli_reduce to niggli_reduce_periodic
+- [[#258]](https://github.com/spglib/spglib/pull/258) - Change `SPGCONST` to `const`
+- [[#278]](https://github.com/spglib/spglib/pull/278) - Revive compiler warnings
+- [[#281]](https://github.com/spglib/spglib/pull/281) - Fix message and remove redundant lines
+- [[#284]](https://github.com/spglib/spglib/pull/284) - Ensure thread-safety
+- [[#293]](https://github.com/spglib/spglib/pull/293) - Refactor debug-warning rules
 
 ### Fortran interface
 
-- [\[#216\]](https://github.com/spglib/spglib/pull/216) - Fortran spg get symmetry with site tensors
-- [\[#224\]](https://github.com/spglib/spglib/pull/224) - Change installation location of spglib_f08.mod
-- [\[#226\]](https://github.com/spglib/spglib/pull/226) - Add fortran tests and clean cmake
-- [\[#227\]](https://github.com/spglib/spglib/pull/227) - Quick fix: Fix fortran cmake target
-- [\[#230\]](https://github.com/spglib/spglib/pull/230) - Add fortran interface test
-- [\[#232\]](https://github.com/spglib/spglib/pull/232) - Add more fortran wrapper tests
+- [[#216]](https://github.com/spglib/spglib/pull/216) - Fortran spg get symmetry with site tensors
+- [[#224]](https://github.com/spglib/spglib/pull/224) - Change installation location of spglib_f08.mod
+- [[#226]](https://github.com/spglib/spglib/pull/226) - Add fortran tests and clean cmake
+- [[#227]](https://github.com/spglib/spglib/pull/227) - Quick fix: Fix fortran cmake target
+- [[#230]](https://github.com/spglib/spglib/pull/230) - Add fortran interface test
+- [[#232]](https://github.com/spglib/spglib/pull/232) - Add more fortran wrapper tests
 
 ### Build system improvement
 
-- [\[#210\]](https://github.com/spglib/spglib/pull/210) - Improve cmake build
-- [\[#215\]](https://github.com/spglib/spglib/pull/215) - Fix pre-commit
-- [\[#233\]](https://github.com/spglib/spglib/pull/233) - Cmake refactoring
-- [\[#260\]](https://github.com/spglib/spglib/pull/260) - Fix #191 again
-- [\[#266\]](https://github.com/spglib/spglib/pull/266) - Add rpm spec file
-- [\[#270\]](https://github.com/spglib/spglib/pull/270) - Fix codecov package dependency
-- [\[#272\]](https://github.com/spglib/spglib/pull/272) - Fedora packaging maintenance
-- [\[#274\]](https://github.com/spglib/spglib/pull/274) - \[Temp\] Disable intel toolchain
-- [\[#279\]](https://github.com/spglib/spglib/pull/279) - Various cmake cleanups
-- [\[#300\]](https://github.com/spglib/spglib/pull/300) - tests: Refactor testing framework
-- [\[#302\]](https://github.com/spglib/spglib/pull/302) - Silence C warning "arrays with different qualifiers"
-- [\[#304\]](https://github.com/spglib/spglib/pull/304) - Set C standard to C11
-- [\[#309\]](https://github.com/spglib/spglib/pull/309) - Add pytests to ctest
+- [[#210]](https://github.com/spglib/spglib/pull/210) - Improve cmake build
+- [[#215]](https://github.com/spglib/spglib/pull/215) - Fix pre-commit
+- [[#233]](https://github.com/spglib/spglib/pull/233) - Cmake refactoring
+- [[#260]](https://github.com/spglib/spglib/pull/260) - Fix #191 again
+- [[#266]](https://github.com/spglib/spglib/pull/266) - Add rpm spec file
+- [[#270]](https://github.com/spglib/spglib/pull/270) - Fix codecov package dependency
+- [[#272]](https://github.com/spglib/spglib/pull/272) - Fedora packaging maintenance
+- [[#274]](https://github.com/spglib/spglib/pull/274) - [Temp] Disable intel toolchain
+- [[#279]](https://github.com/spglib/spglib/pull/279) - Various cmake cleanups
+- [[#300]](https://github.com/spglib/spglib/pull/300) - tests: Refactor testing framework
+- [[#302]](https://github.com/spglib/spglib/pull/302) - Silence C warning "arrays with different qualifiers"
+- [[#304]](https://github.com/spglib/spglib/pull/304) - Set C standard to C11
+- [[#309]](https://github.com/spglib/spglib/pull/309) - Add pytests to ctest
 
 ### Python packaging improvement
 
-- [\[#203\]](https://github.com/spglib/spglib/pull/203) - Add setup.cfg for python interface
-- [\[#214\]](https://github.com/spglib/spglib/pull/214) - Temporary fix for scikit-build on macs
-- [\[#218\]](https://github.com/spglib/spglib/pull/218) - Move to `pyproject.toml` build
-- [\[#229\]](https://github.com/spglib/spglib/pull/229) - Minor fix of pyproject.toml
-- [\[#268\]](https://github.com/spglib/spglib/pull/268) - Refactor python optional dependencies
-- [\[#269\]](https://github.com/spglib/spglib/pull/269) - Python: fix packaging
+- [[#203]](https://github.com/spglib/spglib/pull/203) - Add setup.cfg for python interface
+- [[#214]](https://github.com/spglib/spglib/pull/214) - Temporary fix for scikit-build on macs
+- [[#218]](https://github.com/spglib/spglib/pull/218) - Move to `pyproject.toml` build
+- [[#229]](https://github.com/spglib/spglib/pull/229) - Minor fix of pyproject.toml
+- [[#268]](https://github.com/spglib/spglib/pull/268) - Refactor python optional dependencies
+- [[#269]](https://github.com/spglib/spglib/pull/269) - Python: fix packaging
 
 ### CI and releasing
 
-- [\[#241\]](https://github.com/spglib/spglib/pull/241) - Improvre pre-commit and github action
-- [\[#250\]](https://github.com/spglib/spglib/pull/250) - Use tag format for PyPi action
-- [\[#254\]](https://github.com/spglib/spglib/pull/254) - Include an autoreleaser
-- [\[#275\]](https://github.com/spglib/spglib/pull/275) - Change PyPI publishing to `Trusted publishing`
-- [\[#280\]](https://github.com/spglib/spglib/pull/280) - fix: Hotfix Fedora CI
-- [\[#285\]](https://github.com/spglib/spglib/pull/285) - ci: Use container with pre-installed toolchains
-- [\[#286\]](https://github.com/spglib/spglib/pull/286) - Add windows and macos CI
-- [\[#287\]](https://github.com/spglib/spglib/pull/287) - Refactor Github CI
-- [\[#294\]](https://github.com/spglib/spglib/pull/294) - ci: Silence codecov until all coverage tests are uploaded
-- [\[#306\]](https://github.com/spglib/spglib/pull/306) - ci: Add concurrency to GH actions
-- [\[#307\]](https://github.com/spglib/spglib/pull/307) - ci: Switch to native pip instead of conda
-- [\[#315\]](https://github.com/spglib/spglib/pull/315) - Various fixes
-- [\[#319\]](https://github.com/spglib/spglib/pull/319) - Fix python 3.12 CI
-- [\[#320\]](https://github.com/spglib/spglib/pull/320) - Fix target branch for packit
-- [\[#321\]](https://github.com/spglib/spglib/pull/321) - Fix: build wheel workflow
+- [[#241]](https://github.com/spglib/spglib/pull/241) - Improvre pre-commit and github action
+- [[#250]](https://github.com/spglib/spglib/pull/250) - Use tag format for PyPi action
+- [[#254]](https://github.com/spglib/spglib/pull/254) - Include an autoreleaser
+- [[#275]](https://github.com/spglib/spglib/pull/275) - Change PyPI publishing to `Trusted publishing`
+- [[#280]](https://github.com/spglib/spglib/pull/280) - fix: Hotfix Fedora CI
+- [[#285]](https://github.com/spglib/spglib/pull/285) - ci: Use container with pre-installed toolchains
+- [[#286]](https://github.com/spglib/spglib/pull/286) - Add windows and macos CI
+- [[#287]](https://github.com/spglib/spglib/pull/287) - Refactor Github CI
+- [[#294]](https://github.com/spglib/spglib/pull/294) - ci: Silence codecov until all coverage tests are uploaded
+- [[#306]](https://github.com/spglib/spglib/pull/306) - ci: Add concurrency to GH actions
+- [[#307]](https://github.com/spglib/spglib/pull/307) - ci: Switch to native pip instead of conda
+- [[#315]](https://github.com/spglib/spglib/pull/315) - Various fixes
+- [[#319]](https://github.com/spglib/spglib/pull/319) - Fix python 3.12 CI
+- [[#320]](https://github.com/spglib/spglib/pull/320) - Fix target branch for packit
+- [[#321]](https://github.com/spglib/spglib/pull/321) - Fix: build wheel workflow
 
 ### Misc
 
-- [\[#207\]](https://github.com/spglib/spglib/pull/207) - Add benchmark for `get_symmetry_dataset`
+- [[#207]](https://github.com/spglib/spglib/pull/207) - Add benchmark for `get_symmetry_dataset`
 
 ## V2.0.2 (6 Nov. 2022)
 
-- Fix segmentation fault in `spgms_get_symmetry_with_site_tensors` with high symprec [\[#195\]](https://github.com/spglib/spglib/pull/195)
-- Fix possible segmentation fault in `get_magnetic_dataset` with high symprec [\[#196\]](https://github.com/spglib/spglib/pull/196)
+- Fix segmentation fault in `spgms_get_symmetry_with_site_tensors` with high symprec [[#195]](https://github.com/spglib/spglib/pull/195)
+- Fix possible segmentation fault in `get_magnetic_dataset` with high symprec [[#196]](https://github.com/spglib/spglib/pull/196)
 
 ## V2.0.1 (31 Aug. 2022)
 
@@ -2228,4 +2274,5 @@ For fixing many warning in many codes and gcc-4.3 related problem
 in bravais.c.
 ```
 
+[python-exceptions]: https://spglib.readthedocs.io/en/stable/exceptions/python.html
 [setuptools-scm]: https://setuptools-scm.readthedocs.io/en/latest/extending/#available-implementations

@@ -25,13 +25,11 @@ jobs:
       matrix:
         toolchain: [ gcc, llvm, intel ]
         include:
-          - os: macos-13
-            toolchain: macos
           - os: macos-latest
             toolchain: macos
-          - os: windows-2019
-            toolchain: windows
           - os: windows-latest
+            toolchain: windows
+          - os: windows-11-arm
             toolchain: windows
     steps:
       - name: Enable msvc toolchain on windows
@@ -45,24 +43,18 @@ jobs:
           printenv >> $GITHUB_ENV
           echo $PATH >> $GITHUB_PATH
         if: matrix.toolchain == 'intel'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - name: Install dependencies
-        run: |
-          python3 -m pip install pip-tools
-          pip-compile --extra=test --strip-extras pyproject.toml
-          python3 -m pip install -r requirements.txt
       - uses: lukka/get-cmake@latest
       - name: Run CMake configuration for ${{ matrix.toolchain }} toolchain
-        # Cannot update passed v10.5 on Windows:
-        # https://github.com/lukka/run-cmake/issues/142
-        uses: lukka/run-cmake@v10.5
+        uses: lukka/run-cmake@v10
         with:
           workflowPreset: "${{ matrix.toolchain }}-ci"
+        # Remove VCPKG_ROOT because we do not have it setup, but the action does not fail-safe
+        # https://github.com/lukka/run-cmake/issues/142
+        env:
+          VCPKG_ROOT: ""
         continue-on-error: ${{ matrix.experimental && inputs.mask-experimental}}
 
   python-tests:
@@ -75,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.9", "3.10", "3.x" ]
+        python-version: [ "3.9", "3.10", "3.x", "3.14t" ]
         numpy-runtime: [ "" ]
         pre: [ "" ]
         include:
@@ -89,11 +81,11 @@ jobs:
           - python-version: "3.12"
             numpy-runtime: "<2.0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: ${{ matrix.pre || false }}
@@ -120,14 +112,9 @@ jobs:
           - cmake: latestrc
             experimental: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: Install dependencies
-        run: |
-          python3 -m pip install pip-tools
-          pip-compile --extra=test --strip-extras pyproject.toml ${{ matrix.pre && '--pre' }}
-          python3 -m pip install -r requirements.txt
       - uses: lukka/get-cmake@latest
         with:
           cmakeVersion: ${{ matrix.cmake }}
@@ -151,7 +138,7 @@ jobs:
     env:
       SPGLIB_SANITIZER: ${{ matrix.sanitizer }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: lukka/get-cmake@latest
       - name: Run CMake configuration for ${{ matrix.toolchain }} toolchain
         uses: lukka/run-cmake@v10

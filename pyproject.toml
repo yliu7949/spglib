@@ -1,21 +1,21 @@
 [build-system]
 # Numpy build and runtime dependencies are linked to ABI compatibility
 # A new wheel rebuild is needed when changing these
-requires = ["scikit-build-core", "numpy~=2.0"]
+requires = ["scikit-build-core>=0.11", "numpy~=2.0", "pybind11"]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "spglib"
 requires-python = ">=3.9"
 description = "This is the spglib module."
-license = { text = "BSD-3-Clause" }
-license-files = { paths = ["COPYING"] }
+license = "BSD-3-Clause"
+license-files = ["COPYING"]
 readme = "python/README.rst"
 dynamic = ["version"]
 dependencies = [
     "numpy>=1.20,<3",
     "importlib-resources; python_version<'3.10'",
-    "typing-extensions; python_version<'3.10'",
+    "typing-extensions>=4.9.0; python_version<'3.13'",
 ]
 authors = [
     {name="Atsushi Togo", email="atz.togo@gmail.com"},
@@ -32,7 +32,6 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS",
     "Operating System :: Microsoft :: Windows",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: C",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
@@ -59,9 +58,10 @@ docs = [
     "Sphinx >= 7.0",
     "sphinxcontrib-bibtex >= 2.5",
     "sphinx-book-theme",
-    "sphinx-autodoc2",
+    "sphinx-autodoc-typehints",
     "myst-parser >= 2.0",
     "linkify-it-py",
+    "sphinx-tippy",
 ]
 test-cov = [
     "spglib[test]",
@@ -84,7 +84,8 @@ testing = [
 ]
 
 [tool.scikit-build]
-wheel.packages = ["python/spglib"]
+cmake.source-dir = "python"
+wheel.install-dir = "spglib"
 metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
 sdist.include = ["python/spglib/_version.py"]
 
@@ -92,6 +93,11 @@ sdist.include = ["python/spglib/_version.py"]
 SPGLIB_WITH_Python = "ON"
 SPGLIB_WITH_TESTS = "OFF"
 SPGLIB_USE_OMP = "OFF"
+
+[[tool.scikit-build.overrides]]
+if.env.CIBUILDWHEEL = true
+# Make sure cibuildwheel builds with a bundled spglib
+cmake.define.CMAKE_DISABLE_FIND_PACKAGE_Spglib = "ON"
 
 [tool.setuptools_scm]
 write_to = "python/spglib/_version.py"
@@ -101,22 +107,6 @@ write_to = "python/spglib/_version.py"
 skip = ["pp*", "*-win32", "*-manylinux_i686", "*-musllinux*"]
 test-extras = "test"
 test-command = "pytest {package}/test/functional/python"
-before-build = [
-    "cmake -B _build -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release",
-    "cmake --build _build --config Release",
-    "cmake --install _build --config Release --prefix {project}/_install",
-]
-
-[tool.cibuildwheel.linux]
-before-build = [
-    "cmake -B _build -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release",
-    "cmake --build _build",
-    "cmake --install _build",
-]
-repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
-
-[tool.cibuildwheel.macos]
-repair-wheel-command = "DYLD_LIBRARY_PATH=_install/lib delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
 
 [tool.pytest.ini_options]
 addopts = "-Werror -m 'not benchmark'"
@@ -207,14 +197,28 @@ files = ["python", "test/functional/python", "example/python_api"]
 python_version = "3.12"
 warn_unused_configs = true
 show_error_codes = true
-# TODO: Enable strict mode once we clean up type annotations
-# strict = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 no_strict_optional = true
+# TODO: Cannot handle examples and tests strictly yet
+strict = false
+# For tests, we don't need type-annotation on test fixtures
+# Haven't seen `mypy.overrides` used with `files` instead of `modules`,
+# so adding these options globally
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+# For the main library we want to be as strict as possible
+module = ["spglib.*"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
 
 [tool.codespell]
 ignore-words = "docs/codespell.txt"
 skip = "docs/references.bib"
 
-[tool.check-wheel-contents]
-ignore = "W002"
+[tool.cmake_pc_hooks]
+defines = [
+    "SPLGIB_WITH_Fortran=ON",
+    "SPLGIB_WITH_TESTS=ON",
+]

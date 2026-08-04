@@ -7,9 +7,9 @@ understanding the crystallography ashamedly.
 
 ## General materials
 
-- [Bilbao Crystallographic Server](https://www.cryst.ehu.es/). The
+- [Bilbao Crystallographic Server](https://web.archive.org/web/20250505150336/https://www.cryst.ehu.es/). The
   references of many useful papers are found in the
-  [Articles page](https://www.cryst.ehu.es/wiki/index.php/Articles).
+  [Articles page](https://web.archive.org/web/20250505150336/https://www.cryst.ehu.es/wiki/index.php/Articles).
 - [Online dictionary of crystallography](https://dictionary.iucr.org/Main_Page)
 
 {cite:empty}`gen-ITA2016`

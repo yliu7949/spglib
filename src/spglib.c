@@ -1,39 +1,8 @@
-/* Copyright (C) 2008 Atsushi Togo */
-/* All rights reserved. */
-
-/* This file is part of spglib. */
-
-/* Redistribution and use in source and binary forms, with or without */
-/* modification, are permitted provided that the following conditions */
-/* are met: */
-
-/* * Redistributions of source code must retain the above copyright */
-/*   notice, this list of conditions and the following disclaimer. */
-
-/* * Redistributions in binary form must reproduce the above copyright */
-/*   notice, this list of conditions and the following disclaimer in */
-/*   the documentation and/or other materials provided with the */
-/*   distribution. */
-
-/* * Neither the name of the spglib project nor the names of its */
-/*   contributors may be used to endorse or promote products derived */
-/*   from this software without specific prior written permission. */
-
-/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS */
-/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT */
-/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS */
-/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE */
-/* COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, */
-/* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, */
-/* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; */
-/* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER */
-/* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT */
-/* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN */
-/* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
-/* POSSIBILITY OF SUCH DAMAGE. */
+// Copyright (C) 2008 Atsushi Togo
+// This file is part of spglib.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "spglib.h"
-#include "base.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -41,6 +10,7 @@
 #include <string.h>
 
 #include "arithmetic.h"
+#include "base.h"
 #include "cell.h"
 #include "debug.h"
 #include "delaunay.h"
@@ -203,32 +173,32 @@ static size_t get_dense_stabilized_reciprocal_mesh(
 /*-----------------------------------------*/
 /* Version: spglib-[major].[minor].[micro] */
 /*-----------------------------------------*/
-char const *spg_get_version() {
+char const *spg_get_version(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_VERSION;
 }
 
-char const *spg_get_version_full() {
+char const *spg_get_version_full(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_VERSION_FULL;
 }
 
-char const *spg_get_commit() {
+char const *spg_get_commit(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_COMMIT;
 }
 
-int spg_get_major_version() {
+int spg_get_major_version(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_MAJOR_VERSION;
 }
 
-int spg_get_minor_version() {
+int spg_get_minor_version(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_MINOR_VERSION;
 }
 
-int spg_get_micro_version() {
+int spg_get_micro_version(void) {
     spglib_error_code = SPGLIB_SUCCESS;
     return SPGLIB_MICRO_VERSION;
 }
@@ -241,7 +211,7 @@ SPG_API_TEST void spg_set_error_code(SpglibError err) {
     spglib_error_code = err;
 }
 
-char *spg_get_error_message(SpglibError error) {
+char const *spg_get_error_message(SpglibError error) {
     int i;
 
     for (i = 0; i < 100; i++) {
@@ -1439,13 +1409,13 @@ static int set_dataset(SpglibDataset *dataset, Cell const *cell,
 
     dataset->n_operations = exstr->symmetry->size;
 
-    if ((dataset->rotations = (int(*)[3][3])malloc(
+    if ((dataset->rotations = (int (*)[3][3])malloc(
              sizeof(int[3][3]) * dataset->n_operations)) == NULL) {
         warning_memory("dataset->rotations");
         goto err;
     }
 
-    if ((dataset->translations = (double(*)[3])malloc(
+    if ((dataset->translations = (double (*)[3])malloc(
              sizeof(double[3]) * dataset->n_operations)) == NULL) {
         warning_memory("dataset->translations");
         goto err;
@@ -1464,7 +1434,7 @@ static int set_dataset(SpglibDataset *dataset, Cell const *cell,
     }
 
     if ((dataset->site_symmetry_symbols =
-             (char(*)[7])malloc(sizeof(char[7]) * dataset->n_atoms)) == NULL) {
+             (char (*)[7])malloc(sizeof(char[7]) * dataset->n_atoms)) == NULL) {
         warning_memory("dataset->site_symmetry_symbols");
         goto err;
     }
@@ -1514,7 +1484,7 @@ static int set_dataset(SpglibDataset *dataset, Cell const *cell,
     dataset->n_std_atoms = exstr->bravais->size;
     mat_copy_matrix_d3(dataset->std_lattice, exstr->bravais->lattice);
 
-    if ((dataset->std_positions = (double(*)[3])malloc(
+    if ((dataset->std_positions = (double (*)[3])malloc(
              sizeof(double[3]) * dataset->n_std_atoms)) == NULL) {
         warning_memory("dataset->std_positions");
         goto err;
@@ -1605,12 +1575,12 @@ static int set_magnetic_dataset(SpglibMagneticDataset *dataset,
 
     /* Magnetic symmetry operations */
     dataset->n_operations = magnetic_symmetry->size;
-    if ((dataset->rotations = (int(*)[3][3])malloc(
+    if ((dataset->rotations = (int (*)[3][3])malloc(
              sizeof(int[3][3]) * dataset->n_operations)) == NULL) {
         warning_memory("dataset->rotations");
         goto err;
     }
-    if ((dataset->translations = (double(*)[3])malloc(
+    if ((dataset->translations = (double (*)[3])malloc(
              sizeof(double[3]) * dataset->n_operations)) == NULL) {
         warning_memory("dataset->translations");
         goto err;
@@ -1650,7 +1620,7 @@ static int set_magnetic_dataset(SpglibMagneticDataset *dataset,
     if ((dataset->std_types =
              (int *)malloc(sizeof(int) * dataset->n_std_atoms)) == NULL)
         goto err;
-    if ((dataset->std_positions = (double(*)[3])malloc(
+    if ((dataset->std_positions = (double (*)[3])malloc(
              sizeof(double[3]) * dataset->n_std_atoms)) == NULL)
         goto err;
     if ((dataset->std_tensors = spn_alloc_site_tensors(
@@ -2363,9 +2333,10 @@ static int get_hall_number_from_symmetry(int const rotation[][3][3],
                                          double const symprec) {
     int i, hall_number;
     Symmetry *symmetry;
-    Symmetry *prim_symmetry;
+    Symmetry *prim_symmetry, *red_symmetry;
     Spacegroup *spacegroup;
-    double t_mat[3][3], t_mat_inv[3][3], prim_lat[3][3];
+    double t_mat[3][3], t_mat_inv[3][3], prim_lat[3][3], lat_inv[3][3],
+        red_lat[3][3];
 
     symmetry = NULL;
     prim_symmetry = NULL;
@@ -2380,6 +2351,9 @@ static int get_hall_number_from_symmetry(int const rotation[][3][3],
         mat_copy_vector_d3(symmetry->trans[i], translation[i]);
     }
 
+    // Get symmetry operations for a primitive lattice determined by pure
+    // translations in symmetry. Note: t_mat may not yield well-shaped primitive
+    // cell basis vectors.
     prim_symmetry = prm_get_primitive_symmetry(t_mat, symmetry, symprec);
     sym_free_symmetry(symmetry);
     symmetry = NULL;
@@ -2397,8 +2371,23 @@ static int get_hall_number_from_symmetry(int const rotation[][3][3],
         mat_copy_matrix_d3(prim_lat, lattice);
     }
 
+    // Niggli reduce the primitive cell, which is necessary for
+    // spa_search_spacegroup_with_symmetry.
+    mat_copy_matrix_d3(red_lat, prim_lat);
+    if (!spg_niggli_reduce(red_lat, symprec)) {
+        goto err;
+    }
+    if (!mat_inverse_matrix_d3(lat_inv, red_lat, symprec)) {
+        goto err;
+    }
+    mat_multiply_matrix_d3(t_mat, lat_inv, prim_lat);
+
+    red_symmetry = ref_get_primitive_symmetry(t_mat, prim_symmetry);
     spacegroup =
-        spa_search_spacegroup_with_symmetry(prim_symmetry, prim_lat, symprec);
+        spa_search_spacegroup_with_symmetry(red_symmetry, red_lat, symprec);
+
+    sym_free_symmetry(red_symmetry);
+    red_symmetry = NULL;
     sym_free_symmetry(prim_symmetry);
     prim_symmetry = NULL;
     if (spacegroup) {

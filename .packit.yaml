@@ -8,8 +8,9 @@ files_to_sync:
       - "protect .git*"
       - "protect sources"
       - "protect changelog"
-      - "- plans/rpminspect.fmf"
-      - "- plans/rpmlint.fmf"
+      - "protect gating.yaml"
+      # Temporary fix for
+      - "- *.spec"
   - .packit.yaml
 
 upstream_package_name: spglib
@@ -17,32 +18,36 @@ downstream_package_name: spglib
 upstream_tag_template: v{version}
 
 targets:
-  - fedora-all-x86_64
-  - fedora-all-aarch64
-  - epel-9-x86_64
-  - epel-9-aarch64
+  - fedora-development-x86_64
+  - fedora-development-aarch64
+  - epel-10-x86_64
+  - epel-10-aarch64
 
-jobs:
-  - &copr_build
+_:
+  - &build_in_packit
     job: copr_build
-    trigger: release
+  - &build_in_lecris
+    <<: *build_in_packit
     owner: lecris
-    project: release
-    update_release: false
-  - <<: *copr_build
-    trigger: commit
-    branch: develop
-    project: nightly
-    update_release: true
   - &tests
     job: tests
-    trigger: commit
-    branch: develop
     fmf_path: .distro
-  - job: copr_build
+
+jobs:
+  - <<: *build_in_packit
     trigger: pull_request
   - <<: *tests
     trigger: pull_request
+  - <<: *build_in_lecris
+    project: nightly
+    trigger: commit
+    branch: develop
+  - <<: *tests
+    trigger: commit
+    branch: develop
+  - <<: *build_in_lecris
+    project: release
+    trigger: release
   - job: propose_downstream
     trigger: release
     dist_git_branches:

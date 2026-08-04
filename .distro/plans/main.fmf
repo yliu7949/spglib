@@ -1,6 +1,6 @@
 adjust+:
     # Cannot use initiator: fedora-ci reliably yet
     when: initiator is not defined or initiator != packit
-    discover:
+    discover+:
       how: fmf
       dist-git-source: true

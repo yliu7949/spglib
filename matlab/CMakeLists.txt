@@ -1,33 +1,55 @@
 cmake_minimum_required(VERSION 3.25...3.29)
 
-# Set the project name, version, and specify the C++ language
-project(Spglib_MATLAB
-        VERSION 1.0
-        LANGUAGES CXX
-)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    project(Spglib_MATLAB VERSION 1.0 LANGUAGES CXX)
+else ()
+    enable_language(CXX)
+endif ()
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set the full MATLAB installation used to build the MEX file. Override this
-# cache entry with -DMatlab_ROOT_DIR=... when building another MATLAB release.
-set(Matlab_ROOT_DIR "/Applications/MATLAB_R2026b.app"
-        CACHE PATH "MATLAB installation root")
-find_package(Matlab REQUIRED)
+if (DEFINED SPGLIB_WITH_TESTS)
+    set(_Spglib_MATLAB_default_tests ${SPGLIB_WITH_TESTS})
+else ()
+    set(_Spglib_MATLAB_default_tests ON)
+endif ()
+option(SPGLIB_MATLAB_WITH_TESTS "Spglib: Run MATLAB unit tests"
+       ${_Spglib_MATLAB_default_tests})
+
+# Matlab_ROOT_DIR may be supplied on the command line. Otherwise FindMatlab
+# discovers an installed MATLAB release using CMake's standard search logic.
+if (SPGLIB_MATLAB_WITH_TESTS)
+    find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
+else ()
+    find_package(Matlab REQUIRED)
+endif ()
 
 # _spglib.cpp is C++ code that implements the classic C mexFunction API.
 # FindMatlab otherwise treats every C++ source as a C++ MEX API target on macOS
 # and injects unresolved mexFunctionAdapter symbols.
 set(Matlab_HAS_CPP_API FALSE)
 
-# Set the root path for the Spglib library
-set(SPGLIB_ROOT "../install")
-set(Spglib_DIR "../install/lib/cmake/Spglib")
-find_package(Spglib REQUIRED)
+# Reuse the in-tree target when this directory is built from the main project;
+# require an installed Spglib package when it is configured standalone.
+if (NOT TARGET Spglib::symspg)
+    find_package(Spglib CONFIG REQUIRED)
+endif ()
 
-# Add header file path
-include_directories("${SPGLIB_ROOT}/include")
+get_target_property(_Spglib_MATLAB_library_type Spglib::symspg TYPE)
+if (NOT _Spglib_MATLAB_library_type STREQUAL "STATIC_LIBRARY")
+    message(FATAL_ERROR
+            "The MATLAB package requires a static Spglib::symspg target; "
+            "the configured target is ${_Spglib_MATLAB_library_type}."
+    )
+endif ()
+
+if (TARGET Spglib_symspg)
+    # Static libraries linked into a MEX module need position-independent code
+    # on platforms such as Linux.
+    set_property(TARGET Spglib_symspg PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif ()
 
 # Set source files
 set(SOURCE_FILES
@@ -38,15 +60,16 @@ set(SOURCE_FILES
 # MATLAB package layout used by both the source tree and the install bundle.
 set(MATLAB_PACKAGE_DIR
         "${CMAKE_CURRENT_SOURCE_DIR}/+kssolv/+analysis/+spglib")
+set(SPGLIB_MATLAB_OUTPUT_ROOT "${CMAKE_CURRENT_BINARY_DIR}/install"
+        CACHE PATH "Root directory of the generated MATLAB package")
 set(MATLAB_INSTALL_PACKAGE_DIR
-        "${CMAKE_CURRENT_SOURCE_DIR}/install/+kssolv/+analysis/+spglib")
+        "${SPGLIB_MATLAB_OUTPUT_ROOT}/+kssolv/+analysis/+spglib")
 
 # Define the MATLAB source and license files explicitly so that unrelated
 # top-level .m files are never included in the install bundle.
 set(MATLAB_PACKAGE_FILES
         "${MATLAB_PACKAGE_DIR}/Spglib.m"
         "${MATLAB_PACKAGE_DIR}/SpglibError.m"
-        "${MATLAB_PACKAGE_DIR}/SpglibTest.m"
         "${MATLAB_PACKAGE_DIR}/Spglib.rights"
 )
 
@@ -59,7 +82,11 @@ matlab_add_mex(
         NO_IMPLICIT_LINK_TO_MATLAB_LIBRARIES
         LINK_TO Matlab::mex Matlab::mx Spglib::symspg
 )
-target_compile_options(spglib_mex PRIVATE -Wall)
+if (MSVC)
+    target_compile_options(spglib_mex PRIVATE /W3)
+else ()
+    target_compile_options(spglib_mex PRIVATE -Wall)
+endif ()
 
 # Set the output properties for the generated MEX file
 set_target_properties(spglib_mex PROPERTIES
@@ -72,25 +99,37 @@ set_target_properties(spglib_mex PROPERTIES
         INSTALL_RPATH ""
 )
 
-# Ensure the package directories exist.
-file(MAKE_DIRECTORY "${MATLAB_PACKAGE_DIR}")
+# Ensure the generated package directory exists.
 file(MAKE_DIRECTORY "${MATLAB_INSTALL_PACKAGE_DIR}")
 
 # Copy the generated MEX file, MATLAB sources, and Spglib license to the
-# install package after each build. Remove the obsolete package layout so a
-# rebuild cannot leave stale +spglib directories behind.
+# generated package after each build.
 add_custom_command(TARGET spglib_mex POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MATLAB_INSTALL_PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${MATLAB_PACKAGE_FILES} "${MATLAB_INSTALL_PACKAGE_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E rm -f
-                "${MATLAB_PACKAGE_DIR}/symspg.${Matlab_MEX_EXTENSION}"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory
-                "${CMAKE_CURRENT_SOURCE_DIR}/+spglib"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory
-                "${CMAKE_CURRENT_SOURCE_DIR}/install/+spglib"
         COMMENT "Installing the kssolv.analysis.spglib MATLAB package"
 )
+
+if (SPGLIB_MATLAB_WITH_TESTS)
+    enable_testing()
+    matlab_add_unit_test(
+            NAME matlab_spglib
+            UNITTEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/test/SpglibTest.m"
+            ADDITIONAL_PATH "${SPGLIB_MATLAB_OUTPUT_ROOT}"
+            TIMEOUT 600
+    )
+    add_test(
+            NAME matlab_package_layout
+            COMMAND ${CMAKE_COMMAND}
+                    -DMATLAB_PACKAGE_DIR=${MATLAB_INSTALL_PACKAGE_DIR}
+                    -DMATLAB_MEX_EXTENSION=${Matlab_MEX_EXTENSION}
+                    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_package.cmake
+    )
+    set_tests_properties(matlab_spglib matlab_package_layout
+            PROPERTIES LABELS "matlab;package"
+    )
+endif ()
 
 # Allow the option to decide whether to compile _spglib_test.cpp
 option(BUILD_TEST_EXECUTABLE "Build test executable" OFF)
@@ -105,5 +144,4 @@ if(BUILD_TEST_EXECUTABLE)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     )
     target_link_libraries(test_executable PRIVATE Spglib::symspg)
-    target_include_directories(test_executable PRIVATE "${SPGLIB_ROOT}/include")
 endif()

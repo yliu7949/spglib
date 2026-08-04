@@ -1,36 +1,6 @@
-/* Copyright (C) 2012 Atsushi Togo */
-/* All rights reserved. */
-
-/* This file is part of spglib. */
-
-/* Redistribution and use in source and binary forms, with or without */
-/* modification, are permitted provided that the following conditions */
-/* are met: */
-
-/* * Redistributions of source code must retain the above copyright */
-/*   notice, this list of conditions and the following disclaimer. */
-
-/* * Redistributions in binary form must reproduce the above copyright */
-/*   notice, this list of conditions and the following disclaimer in */
-/*   the documentation and/or other materials provided with the */
-/*   distribution. */
-
-/* * Neither the name of the spglib project nor the names of its */
-/*   contributors may be used to endorse or promote products derived */
-/*   from this software without specific prior written permission. */
-
-/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS */
-/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT */
-/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS */
-/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE */
-/* COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, */
-/* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, */
-/* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; */
-/* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER */
-/* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT */
-/* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN */
-/* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
-/* POSSIBILITY OF SUCH DAMAGE. */
+// Copyright (C) 2012 Atsushi Togo
+// This file is part of spglib.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "spin.h"
 
@@ -196,7 +166,7 @@ Cell *spn_get_idealized_cell(int const *permutations, Cell const *cell,
     Cell *exact_cell;
     double scalar_tmp, scalar_res;
     double pos_tmp[3], pos_res[3], vector_tmp[3], vector_res[3];
-    double(*rotations_cart)[3][3];
+    double (*rotations_cart)[3][3];
     int *inv_perm;
 
     scalar_res = 0;
@@ -215,7 +185,7 @@ Cell *spn_get_idealized_cell(int const *permutations, Cell const *cell,
     exact_cell->aperiodic_axis = cell->aperiodic_axis;
     exact_cell->size = cell->size;
 
-    if ((rotations_cart = (double(*)[3][3])malloc(
+    if ((rotations_cart = (double (*)[3][3])malloc(
              sizeof(double[3][3]) * magnetic_symmetry->size)) == NULL) {
         return NULL;
     }
@@ -340,14 +310,14 @@ static MagneticSymmetry *get_operations(
     MatINT *rotations;
     VecDBL *trans;
     int *spin_flips;
-    double(*rotations_cart)[3][3];
+    double (*rotations_cart)[3][3];
     double inv_lat[3][3];
 
     rotations_cart = NULL;
 
     /* Site tensors in cartesian */
-    if ((rotations_cart = (double(*)[3][3])malloc(sizeof(double[3][3]) *
-                                                  sym_nonspin->size)) == NULL) {
+    if ((rotations_cart = (double (*)[3][3])malloc(
+             sizeof(double[3][3]) * sym_nonspin->size)) == NULL) {
         goto err;
     }
     mat_inverse_matrix_d3(inv_lat, cell->lattice, 0);
@@ -562,7 +532,7 @@ static int *get_symmetry_permutations(MagneticSymmetry const *magnetic_symmetry,
     int *permutations;
     double scalar;
     double pos[3], vector[3], diff[3];
-    double(*rotations_cart)[3][3];
+    double (*rotations_cart)[3][3];
 
     rotations_cart = NULL;
     permutations = NULL;
@@ -573,7 +543,7 @@ static int *get_symmetry_permutations(MagneticSymmetry const *magnetic_symmetry,
     }
 
     /* Site tensors in cartesian */
-    if ((rotations_cart = (double(*)[3][3])malloc(
+    if ((rotations_cart = (double (*)[3][3])malloc(
              sizeof(double[3][3]) * magnetic_symmetry->size)) == NULL) {
         free(permutations);
         permutations = NULL;

@@ -13,12 +13,23 @@ set(Spglib_Python @SPGLIB_WITH_Python@)
 set(Spglib_OMP @SPGLIB_USE_OMP@)
 set(Spglib_LIB_TYPE @SPGLIB_LIB_TYPE@)
 
+# Workaround for pip build isolation issue
+# https://github.com/pypa/pip/issues/12976
+# Check that this installation is built within scikit-build-core
+# and that wer are rebuilding the same spglib python project
+set(_spglib_built_from_skbuild_project "@SKBUILD_PROJECT_NAME@")
+if(_spglib_built_from_skbuild_project STREQUAL "spglib" AND
+    SKBUILD_PROJECT_NAME STREQUAL "spglib")
+    set(Spglib_FOUND FALSE)
+    return()
+endif()
+
 ## Parse find_package request
 
 if (NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/PackageCompsHelper.cmake)
-	message(WARNING "Missing helper file PackageCompsHelper.cmake")
-	set(Spglib_FOUND FALSE)
-	return()
+    message(WARNING "Missing helper file PackageCompsHelper.cmake")
+    set(Spglib_FOUND FALSE)
+    return()
 endif ()
 
 include(${CMAKE_CURRENT_LIST_DIR}/PackageCompsHelper.cmake)
@@ -29,16 +40,16 @@ check_required_components(Spglib)
 get_property(languages GLOBAL PROPERTY ENABLED_LANGUAGES)
 # For Fortran targets, check that the modules are usable with the current compiler
 if (Fortran IN_LIST languages AND TARGET Spglib::fortran_mod)
-	try_compile(spglib_fortran_try_compile
-			SOURCES ${CMAKE_CURRENT_LIST_DIR}/try_compile.f90
-			LINK_LIBRARIES Spglib::fortran_mod
-	)
-	if (spglib_fortran_try_compile)
-		# If the compilation was successful, use the module version of the library
-		add_library(Spglib::fortran ALIAS Spglib::fortran_mod)
-	else ()
-		# Otherwise, assume it was because of incompatible compiler
-		# Add the bundled `.f90` files as sources instead
-		add_library(Spglib::fortran ALIAS Spglib::fortran_include)
-	endif ()
+    try_compile(spglib_fortran_try_compile
+            SOURCES ${CMAKE_CURRENT_LIST_DIR}/try_compile.f90
+            LINK_LIBRARIES Spglib::fortran_mod
+    )
+    if (spglib_fortran_try_compile)
+        # If the compilation was successful, use the module version of the library
+        add_library(Spglib::fortran ALIAS Spglib::fortran_mod)
+    else ()
+        # Otherwise, assume it was because of incompatible compiler
+        # Add the bundled `.f90` files as sources instead
+        add_library(Spglib::fortran ALIAS Spglib::fortran_include)
+    endif ()
 endif ()

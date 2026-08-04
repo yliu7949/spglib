@@ -75,7 +75,7 @@ int main(void) {
 
     // Obtain data in SpglibDataset.
     // The space group number 186 corresponds to the wurtzite-type (P6_3mc).
-    // See https://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-table
+    // See https://web.archive.org/web/20250505150336/https://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-table
     assert(dataset->spacegroup_number == 186);
 
     // Deallocate SpglibDataset, otherwise induce memory leak.
@@ -120,6 +120,15 @@ defaulting to a bundled version.
 For more details and how to build the python project from source, see the
 [python documentation](python/README.rst).
 
+### MATLAB interface (fork extension)
+
+This fork provides a MATLAB package and MEX interface. Configure it together
+with the C library using `-DSPGLIB_WITH_MATLAB=ON` and
+`-DSPGLIB_SHARED_LIBS=OFF`, or build it separately against an installed static
+Spglib package. Shared spglib libraries are intentionally rejected so the
+generated MATLAB package remains self-contained. See the [MATLAB build and
+usage instructions](matlab/README.md).
+
 ### How to manually compile
 
 The minimum configuration, build and install instructions are as follows:
@@ -151,15 +160,19 @@ See the [README](python/README.rst) in the python folder for more details
 
 If you use spglib in your research, please consider citing the following work:
 
-- [Atsushi Togo and Isao Tanaka, Spglib: a software library for crystal symmetry search, arXiv:1808.01590 (2018)](https://arxiv.org/abs/1808.01590)
+- [Atsushi Togo, Kohei Shinohara and Isao Tanaka, Spglib: a software library for crystal symmetry search, Sci. Technol. Adv. Mater., Meth. 4, 2384822-2384836 (2024)](https://www.tandfonline.com/doi/full/10.1080/27660400.2024.2384822) (open access)
 
 ```
-@misc{spglibv1,
-  Author = {Atsushi Togo and Isao Tanaka},
-  Title = {$\texttt{Spglib}$: a software library for crystal symmetry search},
-  Eprint = {arXiv:1808.01590},
-  howpublished = {\url{https://github.com/spglib/spglib}},
-  year = {2018}
+@article{spglib,
+  author = {Atsushi Togo, Kohei Shinohara and Isao Tanaka},
+  title = {Spglib: a software library for crystal symmetry search},
+  journal = {Sci. Technol. Adv. Mater., Meth.},
+  volume = {4},
+  number = {1},
+  pages = {2384822--2384836},
+  year = {2024},
+  doi = {10.1080/27660400.2024.2384822},
+  url = {https://doi.org/10.1080/27660400.2024.2384822},
 }
 ```
 

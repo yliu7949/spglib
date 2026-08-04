@@ -122,7 +122,7 @@ except ImportError:
 ## Version number
 
 In version 1.8.3 or later, the version number is obtained by
-`spglib.__version__` or {func}`spglib.get_version`.
+`spglib.__version__` or {func}`spglib.spglib.get_version`.
 
 ## Example
 
@@ -194,67 +194,49 @@ details, see {ref}`variables_symprec`, {ref}`variables_angle_tolerance`, and
 
 ### Version
 
-```{autodoc2-summary}
-  spglib.get_version
-```
+- {py:func}`spglib.utils.get_version`
 
 ### Error
 
-```{autodoc2-summary}
-  spglib.get_error_message
-```
+- {py:func}`spglib.error.get_error_message`
 
 ### Space-group symmetry search
 
-```{autodoc2-summary}
-  spglib.get_symmetry
-  spglib.get_symmetry_dataset
-```
+- {py:func}`spglib.spg.get_symmetry`
+- {py:func}`spglib.spg.get_symmetry_dataset`
 
 ### Space-group type search
 
-```{autodoc2-summary}
-  spglib.get_spacegroup
-```
+- {py:func}`spglib.spg.get_spacegroup`
 
 ### Standardization and finding primitive cell
 
-```{autodoc2-summary}
-  spglib.standardize_cell
-  spglib.find_primitive
-  spglib.refine_cell
-```
+- {py:func}`spglib.cell.standardize_cell`
+- {py:func}`spglib.cell.find_primitive`
+- {py:func}`spglib.cell.refine_cell`
 
 ### Space-group dataset access
 
-```{autodoc2-summary}
-  spglib.get_symmetry_from_database
-  spglib.get_spacegroup_type
-  spglib.get_spacegroup_type_from_symmetry
-```
+- {py:func}`spglib.spg.get_symmetry_from_database`
+- {py:func}`spglib.spg.get_spacegroup_type`
+- {py:func}`spglib.spg.get_spacegroup_type_from_symmetry`
 
 ### Magnetic symmetry
 
-```{autodoc2-summary}
-  spglib.get_magnetic_symmetry
-  spglib.get_magnetic_symmetry_dataset
-  spglib.get_magnetic_spacegroup_type
-  spglib.get_magnetic_spacegroup_type_from_symmetry
-  spglib.get_magnetic_symmetry_from_database
-```
+- {py:func}`spglib.msg.get_magnetic_symmetry`
+- {py:func}`spglib.msg.get_magnetic_symmetry_dataset`
+- {py:func}`spglib.msg.get_magnetic_spacegroup_type`
+- {py:func}`spglib.msg.get_magnetic_spacegroup_type_from_symmetry`
+- {py:func}`spglib.msg.get_magnetic_symmetry_from_database`
 
 ### Lattice reduction
 
-```{autodoc2-summary}
-  spglib.niggli_reduce
-  spglib.delaunay_reduce
-```
+- {py:func}`spglib.reduce.niggli_reduce`
+- {py:func}`spglib.reduce.delaunay_reduce`
 
 ### Kpoints
 
-```{autodoc2-summary}
-  spglib.get_ir_reciprocal_mesh
-```
+- {py:func}`spglib.kpoints.get_ir_reciprocal_mesh`
 
 ```python
 mapping, grid = get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
@@ -322,13 +304,4 @@ for i, (ir_gp_id, gp) in enumerate(zip(mapping, grid)):
 # Irreducible k-points
 print("Number of ir-kpoints: %d" % len(np.unique(mapping)))
 print((grid[np.unique(mapping)] + [0.5, 0.5, 0.5]) / mesh)
-```
-
-### Deprecated
-
-```{caution} Following functions are deprecated!
-```
-
-```{autodoc2-summary}
-  spglib.get_hall_number_from_symmetry
 ```

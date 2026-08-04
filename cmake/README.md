@@ -91,9 +91,9 @@ and compile it with specific options in [CMake Options](#cmake-options), e.g.:
 project(foo)
 
 FetchContent_Declare(
-	Spglib
-	GIT_REPOSITORY https://github.com/spglib/spglib
-	GIT_TAG main
+    Spglib
+    GIT_REPOSITORY https://github.com/spglib/spglib
+    GIT_TAG develop
 )
 
 set(SPGLIB_USE_OMP ON)

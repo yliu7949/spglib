@@ -2,43 +2,56 @@
 
 ## 1. Compile the MATLAB Module
 
-First, compile the `spglib` library statically using the following commands:
+The recommended build configures the MATLAB interface together with spglib:
 
 ```shell
-cd spglib
-
-# Windows/macOS
-mkdir build
-cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build \
+    -DSPGLIB_SHARED_LIBS=OFF \
+    -DSPGLIB_WITH_MATLAB=ON \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
-cmake --install build --config Release --prefix="./install"
-
-# Linux
-mkdir build
-cmake -S . -B build -DSPGLIB_SHARED_LIBS=OFF -DSPGLIB_WITH_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-fPIC"
-cmake --build build --config Release
-cmake --install build --config Release --prefix="./install"
 ```
 
-Then, go into the `matlab` folder, modify the `MATLAB_ROOT` value in `CMakeLists.txt` according to your actual setup, and execute the following commands to compile:
+If CMake can discover MATLAB automatically, omit `Matlab_ROOT_DIR`. The
+generated package is under
+`build/matlab/install/+kssolv/+analysis/+spglib`.
+
+The MATLAB package requires static spglib. Configurations using
+`SPGLIB_SHARED_LIBS=ON`, or standalone builds that resolve `Spglib::symspg` to
+a shared library, are rejected. Static linking keeps the generated package
+self-contained and suitable for MATLAB Runtime deployment.
+
+The MATLAB interface can also be built against an installed spglib package:
 
 ```shell
-# macOS/Linux
-mkdir build
-cmake -S . -B build
-cmake --build build
-
-# Windows
-mkdir build
-cmake -G "Ninja" -S . -B build -DCMAKE_CXX_COMPILER=clang-cl
-cmake --build build
+cmake -S matlab -B matlab-build \
+    -DSpglib_DIR=/path/to/lib/cmake/Spglib \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
+cmake --build matlab-build --config Release
 ```
 
-After the compilation is complete, an `install` folder will appear in the current directory. The MATLAB package is located at `install/+kssolv/+analysis/+spglib`. Copy the `install` folder to the desired location, and after adding it to the MATLAB path, you can call the related functions in MATLAB.
+Add the generated `install` directory (the directory containing `+kssolv`) to
+the MATLAB path before calling the package.
+
+To build and run the C and MATLAB tests together:
+
+```shell
+cmake -S . -B build \
+    -DSPGLIB_SHARED_LIBS=OFF \
+    -DSPGLIB_WITH_MATLAB=ON \
+    -DSPGLIB_WITH_TESTS=ON \
+    -DMatlab_ROOT_DIR=/path/to/MATLAB
+cmake --build build --config Release
+ctest --test-dir build --output-on-failure -C Release
+```
+
+Use `ctest --test-dir build -L matlab --output-on-failure -C Release` to run
+only MATLAB-related unit, configuration, standalone-build, and package-layout
+tests.
 
 ## 2. Usage Example
 
-The `SpglibTest.m` file in `install/+kssolv/+analysis/+spglib` contains many concrete usage examples for reference.
+The `test/SpglibTest.m` file contains concrete usage examples for reference.
 
 For example, to get the version number:
 

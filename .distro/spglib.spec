@@ -1,20 +1,14 @@
-%if 0%{?epel} && 0%{?epel} <= 9
 # scikit-build-core is not available on epel9 and below
-%bcond_with python
-%else
-%bcond_without python
-%endif
+%bcond python %[ !(0%{?epel} && 0%{?epel} <= 9) ]
 
 Name:           spglib
 Summary:        C library for finding and handling crystal symmetries
 Version:        0.0.0
 Release:        %autorelease
-License:        BSD
+License:        BSD-3-Clause
 URL:            https://spglib.readthedocs.io/
 
 Source:         https://github.com/spglib/spglib/archive/refs/tags/v%{version}.tar.gz
-
-Patch:          Relax_numpy_requirements.patch
 
 BuildRequires:  ninja-build
 BuildRequires:  cmake
@@ -24,6 +18,7 @@ BuildRequires:  gcc-fortran
 BuildRequires:  cmake(GTest)
 %if %{with python}
 BuildRequires:  python3-devel
+BuildRequires:  tomcli
 %endif
 
 %description
@@ -58,7 +53,7 @@ Fortran applications that use spglib.
 %if %{with python}
 %package -n     python3-spglib
 Summary:        Python3 library of spglib
-Requires:       spglib = %{version}
+Requires:       spglib = %{version}-%{release}
 
 %description -n python3-spglib
 This package contains the libraries to
@@ -68,6 +63,10 @@ develop applications with spglib Python3 bindings.
 
 %prep
 %autosetup -p1 -n spglib-%{version}
+%if %{with python}
+# Remove the numpy version constraint
+tomcli set pyproject.toml arrays replace "build-system.requires" "numpy.*" "numpy"
+%endif
 
 
 %generate_buildrequires
@@ -86,7 +85,10 @@ develop applications with spglib Python3 bindings.
 
 %cmake_build
 %if %{with python}
-%pyproject_wheel
+# Use the C library built at previous step to avoid building bundled version
+%{pyproject_wheel %{shrink:
+  -C cmake.define.Spglib_ROOT=%{__cmake_builddir}
+}}
 %endif
 
 
@@ -95,15 +97,7 @@ develop applications with spglib Python3 bindings.
 
 %if %{with python}
 %pyproject_install
-%pyproject_save_files spglib
-%endif
-
-%if %{with python}
-rm %{buildroot}%{python3_sitearch}/spglib/lib/libsymspg.so*
-rm %{buildroot}%{python3_sitearch}/spglib/include/spglib.h
-# Delete from pyproject_files as well
-sed -i "/libsymspg.so/d" %{pyproject_files}
-sed -i "/spglib.h/d" %{pyproject_files}
+%pyproject_save_files -l spglib
 %endif
 
 
