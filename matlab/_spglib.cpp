@@ -125,6 +125,27 @@ class SpglibFunctions {
 // Define the function-pointer type for static methods
 typedef void (*SpglibFunction)(int, mxArray *[], int, mxArray const *[]);
 
+namespace {
+
+void throwLastSpglibError(char const *operation) {
+    SpglibError const error = spg_get_error_code();
+    mexErrMsgIdAndTxt("Spglib:spglibError", "%s: %s", operation,
+                      spg_get_error_message(error));
+}
+
+void validateNumAtoms(mxArray const *value, mwSize const expected) {
+    if (!mxIsNumeric(value) || mxIsComplex(value) ||
+        mxGetNumberOfElements(value) != 1 ||
+        mxGetScalar(value) != static_cast<double>(expected)) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidNumAtoms",
+            "num_atom must be a real numeric scalar matching the number of "
+            "position rows.");
+    }
+}
+
+}  // namespace
+
 void show_matrix_3d(double const lattice[3][3]) {
     for (int i = 0; i < 3; i++) {
         mexPrintf("%f %f %f\n", lattice[0][i], lattice[1][i], lattice[2][i]);
@@ -429,7 +450,7 @@ void SpglibFunctions::spg_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
     mexutil::DatasetPtr dataset(
         spg_get_dataset(lattice, position, types, num_atom, symprec));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError", "Failed to get dataset.");
+        throwLastSpglibError("spg_get_dataset failed");
     }
     plhs[0] = mexutil::makeDatasetStruct(*dataset);
 }
@@ -518,8 +539,7 @@ void SpglibFunctions::spg_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
         spg_get_magnetic_dataset(lattice, position, types, tensors, tensor_rank,
                                  num_atom, is_axial, symprec));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError",
-                          "Failed to get magnetic dataset.");
+        throwLastSpglibError("spg_get_magnetic_dataset failed");
     }
     plhs[0] = mexutil::makeMagneticDatasetStruct(*dataset);
 }
@@ -625,8 +645,7 @@ void SpglibFunctions::spgms_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
         lattice, position, types, tensors, tensor_rank, num_atom, is_axial,
         symprec, angle_tolerance, mag_symprec));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError",
-                          "Failed to get magnetic dataset.");
+        throwLastSpglibError("spgms_get_magnetic_dataset failed");
     }
     plhs[0] = mexutil::makeMagneticDatasetStruct(*dataset);
 }
@@ -708,7 +727,7 @@ void SpglibFunctions::spgat_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
     mexutil::DatasetPtr dataset(spgat_get_dataset(
         lattice, position, types, num_atom, symprec, angle_tolerance));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError", "Failed to get dataset.");
+        throwLastSpglibError("spgat_get_dataset failed");
     }
     plhs[0] = mexutil::makeDatasetStruct(*dataset);
 }
@@ -779,7 +798,7 @@ void SpglibFunctions::spg_get_dataset_with_hall_number_mex(
     mexutil::DatasetPtr dataset(spg_get_dataset_with_hall_number(
         lattice, position, types, num_atom, hall_number, symprec));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError", "Failed to get dataset.");
+        throwLastSpglibError("spg_get_dataset_with_hall_number failed");
     }
     plhs[0] = mexutil::makeDatasetStruct(*dataset);
 }
@@ -867,7 +886,7 @@ void SpglibFunctions::spgat_get_dataset_with_hall_number_mex(
         lattice, position, types, num_atom, hall_number, symprec,
         angle_tolerance));
     if (!dataset) {
-        mexErrMsgIdAndTxt("Spglib:datasetError", "Failed to get dataset.");
+        throwLastSpglibError("spgat_get_dataset_with_hall_number failed");
     }
     plhs[0] = mexutil::makeDatasetStruct(*dataset);
 }
@@ -968,9 +987,7 @@ void SpglibFunctions::spg_get_symmetry_with_collinear_spin_mex(
         types, spins, num_atom, symprec);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with collinear spin.");
+        throwLastSpglibError("spg_get_symmetry_with_collinear_spin failed");
     }
 
     // Create and populate the output arrays
@@ -1112,9 +1129,7 @@ void SpglibFunctions::spgat_get_symmetry_with_collinear_spin_mex(
         types, spins, num_atom, symprec, angle_tolerance);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with collinear spin.");
+        throwLastSpglibError("spgat_get_symmetry_with_collinear_spin failed");
     }
 
     // Create and populate the output arrays
@@ -1264,9 +1279,7 @@ void SpglibFunctions::spgms_get_symmetry_with_collinear_spin_mex(
         types, spins, num_atom, symprec, angle_tolerance, mag_symprec);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with collinear spin.");
+        throwLastSpglibError("spgms_get_symmetry_with_collinear_spin failed");
     }
 
     // Create and populate the output arrays
@@ -1412,9 +1425,7 @@ void SpglibFunctions::spg_get_symmetry_with_site_tensors_mex(
         with_time_reversal, is_axial, symprec);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with site tensors.");
+        throwLastSpglibError("spg_get_symmetry_with_site_tensors failed");
     }
 
     // Create and populate the output arrays
@@ -1575,8 +1586,7 @@ void SpglibFunctions::spgat_get_symmetry_with_site_tensors_mex(
     mexutil::Buffer2D<double, 3> translation(max_size);
     mexutil::Buffer1D<int> equivalent_atoms(num_atom);
     double primitive_lattice[3][3];
-    mexutil::Buffer1D<int> spin_flips(
-        num_atom);  // Declare spin_flips as an output variable
+    mexutil::Buffer1D<int> spin_flips(max_size);
 
     // Call spgat_get_symmetry_with_site_tensors
     int n_operations = spgat_get_symmetry_with_site_tensors(
@@ -1585,9 +1595,7 @@ void SpglibFunctions::spgat_get_symmetry_with_site_tensors_mex(
         with_time_reversal, is_axial, symprec, angle_tolerance);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with site tensors.");
+        throwLastSpglibError("spgat_get_symmetry_with_site_tensors failed");
     }
 
     // Create and populate the output arrays
@@ -1630,10 +1638,10 @@ void SpglibFunctions::spgat_get_symmetry_with_site_tensors_mex(
         }
     }
 
-    // Output spin_flips (num_atom int array)
-    plhs[4] = mxCreateNumericMatrix(num_atom, 1, mxINT32_CLASS, mxREAL);
+    // Output spin_flips (n_operations int array)
+    plhs[4] = mxCreateNumericMatrix(n_operations, 1, mxINT32_CLASS, mxREAL);
     auto *spin_flips_out = static_cast<int32_t *>(mxGetData(plhs[4]));
-    for (int i = 0; i < num_atom; ++i) {
+    for (int i = 0; i < n_operations; ++i) {
         spin_flips_out[i] = spin_flips[i];
     }
 
@@ -1756,8 +1764,7 @@ void SpglibFunctions::spgms_get_symmetry_with_site_tensors_mex(
     mexutil::Buffer2D<double, 3> translation(max_size);
     mexutil::Buffer1D<int> equivalent_atoms(num_atom);
     double primitive_lattice[3][3];
-    mexutil::Buffer1D<int> spin_flips(
-        num_atom);  // Declare spin_flips as an output variable
+    mexutil::Buffer1D<int> spin_flips(max_size);
 
     // Call spgms_get_symmetry_with_site_tensors
     int n_operations = spgms_get_symmetry_with_site_tensors(
@@ -1766,9 +1773,7 @@ void SpglibFunctions::spgms_get_symmetry_with_site_tensors_mex(
         with_time_reversal, is_axial, symprec, angle_tolerance, mag_symprec);
 
     if (n_operations == 0) {
-        mexErrMsgIdAndTxt(
-            "Spglib:symmetryError",
-            "Failed to get symmetry operations with site tensors.");
+        throwLastSpglibError("spgms_get_symmetry_with_site_tensors failed");
     }
 
     // Create and populate the output arrays
@@ -1811,10 +1816,10 @@ void SpglibFunctions::spgms_get_symmetry_with_site_tensors_mex(
         }
     }
 
-    // Output spin_flips (num_atom int array)
-    plhs[4] = mxCreateNumericMatrix(num_atom, 1, mxINT32_CLASS, mxREAL);
+    // Output spin_flips (n_operations int array)
+    plhs[4] = mxCreateNumericMatrix(n_operations, 1, mxINT32_CLASS, mxREAL);
     auto *spin_flips_out = static_cast<int32_t *>(mxGetData(plhs[4]));
-    for (int i = 0; i < num_atom; ++i) {
+    for (int i = 0; i < n_operations; ++i) {
         spin_flips_out[i] = spin_flips[i];
     }
 
@@ -2391,8 +2396,9 @@ void SpglibFunctions::spg_standardize_cell_mex(int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
                           "Position must be an Nx3 matrix.");
     }
+    validateNumAtoms(prhs[3], num_atom);
     double *position_ptr = mxGetPr(prhs[1]);
-    mexutil::Buffer2D<double, 3> position(num_atom);
+    mexutil::Buffer2D<double, 3> position(4 * num_atom);
     for (mwSize i = 0; i < num_atom; ++i) {
         for (int j = 0; j < 3; ++j) {
             position[i][j] = position_ptr[i + j * num_atom];
@@ -2405,15 +2411,15 @@ void SpglibFunctions::spg_standardize_cell_mex(int nlhs, mxArray *plhs[],
                           "Types array size must match the number of atoms.");
     }
     int *types_ptr = static_cast<int *>(mxGetData(prhs[2]));
-    mexutil::Buffer1D<int> types(num_atom);
+    mexutil::Buffer1D<int> types(4 * num_atom);
     for (mwSize i = 0; i < num_atom; ++i) {
         types[i] = types_ptr[i];
     }
 
     // Extract and validate the remaining scalar arguments
-    int to_primitive = static_cast<int>(mxGetScalar(prhs[3]));
-    int no_idealize = static_cast<int>(mxGetScalar(prhs[4]));
-    double symprec = mxGetScalar(prhs[5]);
+    int to_primitive = static_cast<int>(mxGetScalar(prhs[4]));
+    int no_idealize = static_cast<int>(mxGetScalar(prhs[5]));
+    double symprec = mxGetScalar(prhs[6]);
 
     // Call spg_standardize_cell
     int num_primitive_atom = spg_standardize_cell(
@@ -2490,8 +2496,9 @@ void SpglibFunctions::spgat_standardize_cell_mex(int nlhs, mxArray *plhs[],
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
                           "Position must be an Nx3 matrix.");
     }
+    validateNumAtoms(prhs[3], num_atom);
     double *position_ptr = mxGetPr(prhs[1]);
-    mexutil::Buffer2D<double, 3> position(num_atom);
+    mexutil::Buffer2D<double, 3> position(4 * num_atom);
     for (mwSize i = 0; i < num_atom; ++i) {
         for (int j = 0; j < 3; ++j) {
             position[i][j] = position_ptr[i + j * num_atom];
@@ -2504,16 +2511,16 @@ void SpglibFunctions::spgat_standardize_cell_mex(int nlhs, mxArray *plhs[],
                           "Types array size must match the number of atoms.");
     }
     int *types_ptr = static_cast<int *>(mxGetData(prhs[2]));
-    mexutil::Buffer1D<int> types(num_atom);
+    mexutil::Buffer1D<int> types(4 * num_atom);
     for (mwSize i = 0; i < num_atom; ++i) {
         types[i] = types_ptr[i];
     }
 
     // Extract and validate the remaining scalar arguments
-    int to_primitive = static_cast<int>(mxGetScalar(prhs[3]));
-    int no_idealize = static_cast<int>(mxGetScalar(prhs[4]));
-    double symprec = mxGetScalar(prhs[5]);
-    double angle_tolerance = mxGetScalar(prhs[6]);
+    int to_primitive = static_cast<int>(mxGetScalar(prhs[4]));
+    int no_idealize = static_cast<int>(mxGetScalar(prhs[5]));
+    double symprec = mxGetScalar(prhs[6]);
+    double angle_tolerance = mxGetScalar(prhs[7]);
 
     // Call spgat_standardize_cell
     int num_primitive_atom =
@@ -3152,20 +3159,25 @@ void SpglibFunctions::spg_get_ir_reciprocal_mesh_mex(int nlhs, mxArray *plhs[],
         grid_address, ir_mapping_table, mesh, is_shift, is_time_reversal,
         lattice, position, types, num_atom, symprec);
 
-    // Create the output grid_address array (num_ir_kpoints x 3 double array)
-    plhs[0] = mxCreateDoubleMatrix(num_ir_kpoints, 3, mxREAL);
+    int const num_total_grid_points = mesh[0] * mesh[1] * mesh[2];
+
+    // Create the output grid_address array (num_total_grid_points x 3 double
+    // array)
+    plhs[0] = mxCreateDoubleMatrix(num_total_grid_points, 3, mxREAL);
     double *grid_address_out = mxGetPr(plhs[0]);
-    for (int i = 0; i < num_ir_kpoints; ++i) {
+    for (int i = 0; i < num_total_grid_points; ++i) {
         for (int j = 0; j < 3; ++j) {
-            grid_address_out[i + j * num_ir_kpoints] =
+            grid_address_out[i + j * num_total_grid_points] =
                 static_cast<double>(grid_address[i][j]);
         }
     }
 
-    // Create the output ir_mapping_table array (num_ir_kpoints int array)
-    plhs[1] = mxCreateNumericMatrix(num_ir_kpoints, 1, mxINT32_CLASS, mxREAL);
+    // Create the output ir_mapping_table array (num_total_grid_points int
+    // array)
+    plhs[1] =
+        mxCreateNumericMatrix(num_total_grid_points, 1, mxINT32_CLASS, mxREAL);
     int *ir_mapping_table_out = static_cast<int *>(mxGetData(plhs[1]));
-    for (int i = 0; i < num_ir_kpoints; ++i) {
+    for (int i = 0; i < num_total_grid_points; ++i) {
         ir_mapping_table_out[i] = ir_mapping_table[i];
     }
 
@@ -3641,7 +3653,15 @@ void SpglibFunctions::spg_get_dense_BZ_grid_points_by_rotations_mex(
     int is_shift[3] = {is_shift_ptr[0], is_shift_ptr[1], is_shift_ptr[2]};
 
     // Extract and validate the bz_map argument
-    size_t *bz_map = static_cast<size_t *>(mxGetData(prhs[5]));
+    mwSize const bz_map_size = static_cast<mwSize>(mesh[0] * 2) *
+                               static_cast<mwSize>(mesh[1] * 2) *
+                               static_cast<mwSize>(mesh[2] * 2);
+    if (!mxIsUint64(prhs[5]) || mxGetNumberOfElements(prhs[5]) != bz_map_size) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidBZMap",
+            "Bz_map must be a uint64 array with prod(mesh * 2) elements.");
+    }
+    size_t const *bz_map = static_cast<size_t const *>(mxGetData(prhs[5]));
 
     // Create the output rot_grid_points array (num_rot size_t array)
     plhs[0] = mxCreateNumericMatrix(num_rot, 1, mxUINT64_CLASS, mxREAL);

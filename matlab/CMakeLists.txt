@@ -35,7 +35,17 @@ set(Matlab_HAS_CPP_API FALSE)
 # require an installed Spglib package when it is configured standalone.
 if (NOT TARGET Spglib::symspg)
     find_package(Spglib CONFIG REQUIRED)
-elseif (TARGET Spglib_symspg)
+endif ()
+
+get_target_property(_Spglib_MATLAB_library_type Spglib::symspg TYPE)
+if (NOT _Spglib_MATLAB_library_type STREQUAL "STATIC_LIBRARY")
+    message(FATAL_ERROR
+            "The MATLAB package requires a static Spglib::symspg target; "
+            "the configured target is ${_Spglib_MATLAB_library_type}."
+    )
+endif ()
+
+if (TARGET Spglib_symspg)
     # Static libraries linked into a MEX module need position-independent code
     # on platforms such as Linux.
     set_property(TARGET Spglib_symspg PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -108,6 +118,16 @@ if (SPGLIB_MATLAB_WITH_TESTS)
             UNITTEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/test/SpglibTest.m"
             ADDITIONAL_PATH "${SPGLIB_MATLAB_OUTPUT_ROOT}"
             TIMEOUT 600
+    )
+    add_test(
+            NAME matlab_package_layout
+            COMMAND ${CMAKE_COMMAND}
+                    -DMATLAB_PACKAGE_DIR=${MATLAB_INSTALL_PACKAGE_DIR}
+                    -DMATLAB_MEX_EXTENSION=${Matlab_MEX_EXTENSION}
+                    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_package.cmake
+    )
+    set_tests_properties(matlab_spglib matlab_package_layout
+            PROPERTIES LABELS "matlab;package"
     )
 endif ()
 

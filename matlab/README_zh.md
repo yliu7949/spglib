@@ -15,6 +15,10 @@ cmake --build build --config Release
 如果 CMake 能自动找到 MATLAB，可以省略 `Matlab_ROOT_DIR`。生成的包位于
 `build/matlab/install/+kssolv/+analysis/+spglib`。
 
+MATLAB 包必须静态链接 spglib。使用 `SPGLIB_SHARED_LIBS=ON` 的配置，以及
+独立构建时解析到共享版 `Spglib::symspg` 的配置都会被拒绝。静态链接可使生成
+的包保持自包含，并适用于 MATLAB Runtime 部署。
+
 也可以单独配置 MATLAB 接口，并链接已经安装的 spglib：
 
 ```shell
@@ -37,6 +41,9 @@ cmake -S . -B build \
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
+
+只运行 MATLAB 相关的单元测试、配置测试、独立构建测试和包布局测试时，可使用：
+`ctest --test-dir build -L matlab --output-on-failure -C Release`。
 
 ## 二、使用示例
 

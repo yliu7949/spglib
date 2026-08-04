@@ -123,9 +123,11 @@ For more details and how to build the python project from source, see the
 ### MATLAB interface (fork extension)
 
 This fork provides a MATLAB package and MEX interface. Configure it together
-with the C library using `-DSPGLIB_WITH_MATLAB=ON`, or build it separately
-against an installed Spglib package. See the [MATLAB build and usage
-instructions](matlab/README.md).
+with the C library using `-DSPGLIB_WITH_MATLAB=ON` and
+`-DSPGLIB_SHARED_LIBS=OFF`, or build it separately against an installed static
+Spglib package. Shared spglib libraries are intentionally rejected so the
+generated MATLAB package remains self-contained. See the [MATLAB build and
+usage instructions](matlab/README.md).
 
 ### How to manually compile
 

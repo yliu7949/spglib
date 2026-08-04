@@ -55,6 +55,13 @@ mark_as_advanced(
         SPGLIB_COMPILATION_WARNING
 )
 
+if (SPGLIB_WITH_MATLAB AND SPGLIB_SHARED_LIBS)
+    message(FATAL_ERROR
+            "SPGLIB_WITH_MATLAB requires a static spglib library. "
+            "Configure with -DSPGLIB_SHARED_LIBS=OFF."
+    )
+endif ()
+
 #[=============================================================================[
 #                            Project configuration                            #
 ]=============================================================================]

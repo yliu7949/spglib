@@ -261,6 +261,9 @@ function(Spglib_add_test test)
     list(APPEND extra_args
             -DSPGLIB_WITH_Fortran=${SPGLIB_WITH_Fortran}
     )
+    if (DEFINED Matlab_ROOT_DIR)
+        list(APPEND extra_args -DMatlab_ROOT_DIR=${Matlab_ROOT_DIR})
+    endif ()
     set(compiler_args)
     foreach (lang IN ITEMS C CXX Fortran)
         if (DEFINED CMAKE_${lang}_COMPILER)
@@ -281,6 +284,24 @@ function(Spglib_add_test test)
             LABELS "${ARGS_LABELS}"
     )
 endfunction()
+
+foreach (matlab_configuration IN ITEMS disabled shared)
+    add_test(
+            NAME matlab-configuration-${matlab_configuration}
+            COMMAND ${CMAKE_COMMAND}
+                    -DMODE=${matlab_configuration}
+                    -DSOURCE_DIR=${Spglib_SOURCE_DIR}
+                    -DBINARY_DIR=${Spglib_BINARY_DIR}/test/matlab-configuration-${matlab_configuration}
+                    "-DGENERATOR=${CMAKE_GENERATOR}"
+                    "-DGENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}"
+                    "-DGENERATOR_TOOLSET=${CMAKE_GENERATOR_TOOLSET}"
+                    -DC_COMPILER=${CMAKE_C_COMPILER}
+                    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/check_matlab_configuration.cmake
+    )
+    set_tests_properties(matlab-configuration-${matlab_configuration}
+            PROPERTIES LABELS "configuration;matlab"
+    )
+endforeach ()
 
 # Add the individual tests types
 add_subdirectory(unit)
