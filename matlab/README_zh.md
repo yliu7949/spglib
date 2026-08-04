@@ -8,11 +8,22 @@
 cmake -S . -B build \
     -DSPGLIB_SHARED_LIBS=OFF \
     -DSPGLIB_WITH_MATLAB=ON \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
 ```
 
-如果 CMake 能自动找到 MATLAB，可以省略 `Matlab_ROOT_DIR`。生成的包位于
+`MATLAB_ROOT_DIR` 必须指向 MATLAB 安装根目录，而不是其中的 `bin` 目录。各平台
+的典型值如下：
+
+```text
+macOS:   /Applications/MATLAB_R2026b.app
+Linux:   /usr/local/MATLAB/R2026b
+Windows: C:/Program Files/MATLAB/R2026b
+```
+
+例如，macOS 可传入 `-DMATLAB_ROOT_DIR=/Applications/MATLAB_R2026b.app`，
+Windows 可传入 `"-DMATLAB_ROOT_DIR=C:/Program Files/MATLAB/R2026b"`。如果
+CMake 能自动找到 MATLAB，可以省略 `MATLAB_ROOT_DIR`。生成的包位于
 `build/matlab/install/+kssolv/+analysis/+spglib`。
 
 MATLAB 包必须静态链接 spglib。使用 `SPGLIB_SHARED_LIBS=ON` 的配置，以及
@@ -24,7 +35,7 @@ MATLAB 包必须静态链接 spglib。使用 `SPGLIB_SHARED_LIBS=ON` 的配置�
 ```shell
 cmake -S matlab -B matlab-build \
     -DSpglib_DIR=/path/to/lib/cmake/Spglib \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build matlab-build --config Release
 ```
 
@@ -37,7 +48,7 @@ cmake -S . -B build \
     -DSPGLIB_SHARED_LIBS=OFF \
     -DSPGLIB_WITH_MATLAB=ON \
     -DSPGLIB_WITH_TESTS=ON \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
@@ -47,7 +58,8 @@ ctest --test-dir build --output-on-failure -C Release
 
 ## 二、使用示例
 
-`test/SpglibTest.m` 文件中包含了许多具体的可供参考的使用示例。
+生成的安装包包含 `SpglibTest.m`，其中提供了许多具体的使用示例，也可以作为
+MATLAB 单元测试运行。
 
 例如，获取版本号：
 

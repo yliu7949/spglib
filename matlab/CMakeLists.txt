@@ -18,8 +18,16 @@ endif ()
 option(SPGLIB_MATLAB_WITH_TESTS "Spglib: Run MATLAB unit tests"
        ${_Spglib_MATLAB_default_tests})
 
-# Matlab_ROOT_DIR may be supplied on the command line. Otherwise FindMatlab
-# discovers an installed MATLAB release using CMake's standard search logic.
+# MATLAB_ROOT_DIR is the public configuration variable used by this project.
+# CMake's FindMatlab module expects the mixed-case Matlab_ROOT_DIR spelling, so
+# keep that implementation detail local to this directory.
+set(MATLAB_ROOT_DIR "" CACHE PATH "Root directory of the MATLAB installation")
+if (MATLAB_ROOT_DIR)
+    set(Matlab_ROOT_DIR "${MATLAB_ROOT_DIR}")
+endif ()
+
+# Without an explicit root, FindMatlab discovers an installed MATLAB release
+# using CMake's standard search logic.
 if (SPGLIB_MATLAB_WITH_TESTS)
     find_package(Matlab REQUIRED COMPONENTS MAIN_PROGRAM)
 else ()
@@ -65,12 +73,13 @@ set(SPGLIB_MATLAB_OUTPUT_ROOT "${CMAKE_CURRENT_BINARY_DIR}/install"
 set(MATLAB_INSTALL_PACKAGE_DIR
         "${SPGLIB_MATLAB_OUTPUT_ROOT}/+kssolv/+analysis/+spglib")
 
-# Define the MATLAB source and license files explicitly so that unrelated
-# top-level .m files are never included in the install bundle.
+# Define the MATLAB source, example, and license files explicitly so that
+# unrelated files are never included in the install bundle.
 set(MATLAB_PACKAGE_FILES
         "${MATLAB_PACKAGE_DIR}/Spglib.m"
         "${MATLAB_PACKAGE_DIR}/SpglibError.m"
         "${MATLAB_PACKAGE_DIR}/Spglib.rights"
+        "${MATLAB_PACKAGE_DIR}/SpglibTest.m"
 )
 
 # Use only the C MEX API libraries required by this source. FindMatlab may
@@ -102,20 +111,25 @@ set_target_properties(spglib_mex PROPERTIES
 # Ensure the generated package directory exists.
 file(MAKE_DIRECTORY "${MATLAB_INSTALL_PACKAGE_DIR}")
 
-# Copy the generated MEX file, MATLAB sources, and Spglib license to the
-# generated package after each build.
-add_custom_command(TARGET spglib_mex POST_BUILD
+# Keep MATLAB sources, the usage example, and the Spglib license synchronized
+# even when an incremental build does not need to relink the MEX file.
+add_custom_target(spglib_matlab_package_files
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MATLAB_INSTALL_PACKAGE_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${MATLAB_PACKAGE_FILES} "${MATLAB_INSTALL_PACKAGE_DIR}/"
-        COMMENT "Installing the kssolv.analysis.spglib MATLAB package"
+        DEPENDS ${MATLAB_PACKAGE_FILES}
+        COMMENT "Synchronizing the kssolv.analysis.spglib MATLAB package files"
 )
+add_dependencies(spglib_mex spglib_matlab_package_files)
 
 if (SPGLIB_MATLAB_WITH_TESTS)
     enable_testing()
     matlab_add_unit_test(
             NAME matlab_spglib
-            UNITTEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/test/SpglibTest.m"
+            UNITTEST_FILE
+                    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/run_spglib_package_tests.m"
+            CUSTOM_TEST_COMMAND
+                    "run_spglib_package_tests('${MATLAB_INSTALL_PACKAGE_DIR}/SpglibTest.m')"
             ADDITIONAL_PATH "${SPGLIB_MATLAB_OUTPUT_ROOT}"
             TIMEOUT 600
     )

@@ -1,4 +1,5 @@
 classdef SpglibTest < matlab.unittest.TestCase
+    %SPGLIBTEST Unit tests and usage examples for kssolv.analysis.spglib.
 
     methods (Test)
         function getVersionTest(testCase)
@@ -138,7 +139,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function datasetConversionSchemaTest(testCase)
-            [lattice, position, types, numAtom, symprec] = SpglibTest.simpleCell();
+            [lattice, position, types, numAtom, symprec] = testCase.simpleCell();
             dataset = kssolv.analysis.spglib.Spglib.getDataset( ...
                 lattice, position, types, numAtom, symprec);
 
@@ -166,7 +167,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function magneticDatasetConversionSchemaTest(testCase)
-            [lattice, position, types, numAtom, symprec] = SpglibTest.simpleCell();
+            [lattice, position, types, numAtom, symprec] = testCase.simpleCell();
             spins = [1; -1];
             dataset = kssolv.analysis.spglib.Spglib.getMagneticDataset( ...
                 lattice, position, types, spins, 0, numAtom, false, symprec);
@@ -743,7 +744,7 @@ classdef SpglibTest < matlab.unittest.TestCase
         end
 
         function getDenseIrReciprocalMeshTest(testCase)
-            [lattice, position, types, numAtom, symprec] = SpglibTest.simpleCell();
+            [lattice, position, types, numAtom, symprec] = testCase.simpleCell();
             mesh = int32([6, 6, 6]);
             isShift = int32([0, 0, 0]);
 

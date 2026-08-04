@@ -8,6 +8,7 @@ set(required_package_files
         "Spglib.m"
         "SpglibError.m"
         "Spglib.rights"
+        "SpglibTest.m"
         "symspg.${MATLAB_MEX_EXTENSION}"
 )
 foreach (package_file IN LISTS required_package_files)
@@ -18,7 +19,3 @@ foreach (package_file IN LISTS required_package_files)
         )
     endif ()
 endforeach ()
-
-if (EXISTS "${MATLAB_PACKAGE_DIR}/SpglibTest.m")
-    message(FATAL_ERROR "Unit tests must not be included in the MATLAB package")
-endif ()

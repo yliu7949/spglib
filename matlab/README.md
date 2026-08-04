@@ -8,11 +8,23 @@ The recommended build configures the MATLAB interface together with spglib:
 cmake -S . -B build \
     -DSPGLIB_SHARED_LIBS=OFF \
     -DSPGLIB_WITH_MATLAB=ON \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
 ```
 
-If CMake can discover MATLAB automatically, omit `Matlab_ROOT_DIR`. The
+`MATLAB_ROOT_DIR` must point to the MATLAB installation root, not its `bin`
+directory. Typical values are:
+
+```text
+macOS:   /Applications/MATLAB_R2026b.app
+Linux:   /usr/local/MATLAB/R2026b
+Windows: C:/Program Files/MATLAB/R2026b
+```
+
+For example, pass
+`-DMATLAB_ROOT_DIR=/Applications/MATLAB_R2026b.app` on macOS or
+`"-DMATLAB_ROOT_DIR=C:/Program Files/MATLAB/R2026b"` on Windows. If CMake can
+discover MATLAB automatically, omit `MATLAB_ROOT_DIR`. The
 generated package is under
 `build/matlab/install/+kssolv/+analysis/+spglib`.
 
@@ -26,7 +38,7 @@ The MATLAB interface can also be built against an installed spglib package:
 ```shell
 cmake -S matlab -B matlab-build \
     -DSpglib_DIR=/path/to/lib/cmake/Spglib \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build matlab-build --config Release
 ```
 
@@ -40,7 +52,7 @@ cmake -S . -B build \
     -DSPGLIB_SHARED_LIBS=OFF \
     -DSPGLIB_WITH_MATLAB=ON \
     -DSPGLIB_WITH_TESTS=ON \
-    -DMatlab_ROOT_DIR=/path/to/MATLAB
+    -DMATLAB_ROOT_DIR=/path/to/MATLAB
 cmake --build build --config Release
 ctest --test-dir build --output-on-failure -C Release
 ```
@@ -51,7 +63,8 @@ tests.
 
 ## 2. Usage Example
 
-The `test/SpglibTest.m` file contains concrete usage examples for reference.
+The generated package includes `SpglibTest.m`, which contains concrete usage
+examples and can also be run as a MATLAB unit test.
 
 For example, to get the version number:
 

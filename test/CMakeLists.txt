@@ -261,8 +261,8 @@ function(Spglib_add_test test)
     list(APPEND extra_args
             -DSPGLIB_WITH_Fortran=${SPGLIB_WITH_Fortran}
     )
-    if (DEFINED Matlab_ROOT_DIR)
-        list(APPEND extra_args -DMatlab_ROOT_DIR=${Matlab_ROOT_DIR})
+    if (MATLAB_ROOT_DIR)
+        list(APPEND extra_args "-DMATLAB_ROOT_DIR=${MATLAB_ROOT_DIR}")
     endif ()
     set(compiler_args)
     foreach (lang IN ITEMS C CXX Fortran)
