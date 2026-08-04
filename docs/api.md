@@ -7,7 +7,7 @@
 **New in version 1.8.3**
 
 Version number of spglib is obtained. These three functions return
-integers that correspond to spglib version \[major\].\[minor\].\[micro\].
+integers that correspond to spglib version [major].[minor].[micro].
 
 ## Error
 
@@ -98,7 +98,7 @@ science.
 
 For an input unit cell structure, symmetry operations of the crystal
 are searched. Then they are compared with the crystallographic
-database and the space group type is determined.  The result is
+database and the space group type is determined. The result is
 returned as the `SpglibDataset` structure as a dataset.
 
 The detail of the dataset is given at [](dataset.md).
@@ -242,7 +242,7 @@ in the case that the input unit cell is a primitive cell.
 vectors with adjusting the positions of atoms to nearest exact
 positions according to crystal symmetry. However the crystal can be
 rotated in Cartesian coordinates by the idealization of the basis
-vectors.  `no_idealize=1` disables this. The detail of the
+vectors. `no_idealize=1` disables this. The detail of the
 idealization (`no_idealize=0`) is written at
 {ref}`def_idealize_cell`. `no_idealize=1` may be useful when we want
 to leave basis vectors and atomic positions in Cartesian coordinates
@@ -378,13 +378,17 @@ SpglibSpacegroupType spg_get_spacegroup_type_from_symmetry(
 );
 ```
 
-The `SpglibSpacegroupType` structure is explained at {ref}`api_spg_spacegroup_type`.
-The parameter `lattice` is used as the distance measure for `symprec`. If it
-is unknown, the following may be a reasonable choice.
+The `SpglibSpacegroupType` structure is explained at
+{ref}`api_spg_spacegroup_type`. The parameter `lattice` should be the same as
+that used to find `rotations` and `translations`. If it is unknown, the
+following may be a possible choice:
 
 ```
 lattice[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 ```
+
+unless the `rotations` and `translations` were obtained for an unusual (very
+oblique) choice of basis vectors.
 
 ## Magnetic symmetry
 
@@ -602,7 +606,7 @@ element. No grid mesh shift is made if 0 is set for `is_shift`.
 The reducible uniform grid points are returned in fractional coordinates
 as `grid_address`. A map between reducible and irreducible points are
 returned as `map` as in the indices of `grid_address`. The number of
-the irreducible k-points are returned as the return value.  The time
+the irreducible k-points are returned as the return value. The time
 reversal symmetry is imposed by setting `is_time_reversal` 1.
 
 Grid points are stored in the order that runs left most element
@@ -620,7 +624,7 @@ first, e.g. (4x4x4 mesh).
  ....      ]
 ```
 
-where the first index runs first.  k-qpoints are calculated by
+where the first index runs first. k-qpoints are calculated by
 `(grid_address + is_shift / 2) / mesh`. A grid point index is
 recovered from `grid_address` by `numpy.dot(grid_address % mesh, [1, mesh[0], mesh[0] * mesh[1]])` in Python-numpy notation, where
 `%` always returns non-negative integers. The order of

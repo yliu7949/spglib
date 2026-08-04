@@ -1,36 +1,6 @@
-/* Copyright (C) 2012 Atsushi Togo */
-/* All rights reserved. */
-
-/* This file is part of spglib. */
-
-/* Redistribution and use in source and binary forms, with or without */
-/* modification, are permitted provided that the following conditions */
-/* are met: */
-
-/* * Redistributions of source code must retain the above copyright */
-/*   notice, this list of conditions and the following disclaimer. */
-
-/* * Redistributions in binary form must reproduce the above copyright */
-/*   notice, this list of conditions and the following disclaimer in */
-/*   the documentation and/or other materials provided with the */
-/*   distribution. */
-
-/* * Neither the name of the spglib project nor the names of its */
-/*   contributors may be used to endorse or promote products derived */
-/*   from this software without specific prior written permission. */
-
-/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS */
-/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT */
-/* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS */
-/* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE */
-/* COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, */
-/* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, */
-/* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; */
-/* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER */
-/* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT */
-/* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN */
-/* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
-/* POSSIBILITY OF SUCH DAMAGE. */
+// Copyright (C) 2012 Atsushi Togo
+// This file is part of spglib.
+// SPDX-License-Identifier: BSD-3-Clause
 
 #include "magnetic_spacegroup.h"
 
@@ -48,6 +18,7 @@
 static int get_reference_space_group(Spacegroup **ref_sg,
                                      MagneticSymmetry **changed_symmetry,
                                      double tmat[3][3], double shift[3],
+                                     double const lattice[3][3],
                                      MagneticSymmetry const *magnetic_symmetry,
                                      double const symprec);
 static Symmetry *get_family_space_group_with_magnetic_symmetry(
@@ -112,7 +83,7 @@ MagneticDataset *msg_identify_magnetic_space_group_type(
     /* TODO(shinohara): add option to specify hall_number in searching
      * space-group type */
     type = get_reference_space_group(&ref_sg, &changed_symmetry, tmat, shift,
-                                     magnetic_symmetry, symprec);
+                                     lattice, magnetic_symmetry, symprec);
     if (type == 0) goto err;
     hall_number = ref_sg->hall_number;
 
@@ -200,6 +171,7 @@ MagneticDataset *msg_identify_magnetic_space_group_type(
 
     mat_multiply_matrix_d3(ref_sg->bravais_lattice, lattice,
                            ref_sg->bravais_lattice);
+
     /* Rigid rotation to standardized lattice */
     get_rigid_rotation(rigid_rot, lattice, tmat, ref_sg);
 
@@ -414,12 +386,14 @@ err:
 static int get_reference_space_group(Spacegroup **ref_sg,
                                      MagneticSymmetry **changed_symmetry,
                                      double tmat[3][3], double shift[3],
+                                     double const lattice[3][3],
                                      MagneticSymmetry const *magnetic_symmetry,
                                      double const symprec) {
     int type;
     Symmetry *sym_fsg, *sym_xsg;
     Spacegroup *fsg, *xsg;
     MagneticSymmetry *representatives;
+    double lattice_inv[3][3];
 
     sym_fsg = NULL;
     sym_xsg = NULL;
@@ -456,6 +430,12 @@ static int get_reference_space_group(Spacegroup **ref_sg,
     } else {
         spa_copy_spacegroup(*ref_sg, fsg);
     }
+    mat_inverse_matrix_d3(lattice_inv, lattice, 0);
+    mat_multiply_matrix_d3((*ref_sg)->bravais_lattice, lattice,
+                           (*ref_sg)->bravais_lattice);
+    ref_find_similar_bravais_lattice(*ref_sg, symprec);
+    mat_multiply_matrix_d3((*ref_sg)->bravais_lattice, lattice_inv,
+                           (*ref_sg)->bravais_lattice);
     mat_inverse_matrix_d3(tmat, (*ref_sg)->bravais_lattice, 0);
     mat_copy_vector_d3(shift, (*ref_sg)->origin_shift);
 

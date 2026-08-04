@@ -21,6 +21,7 @@ set(SubTests_test_fortran_spg_get_dataset
 )
 set(SubTests_test_fortran_spg_get_spacegroup_type
         test_spacegroup_type_rutile
+        test_spacegroup_type_from_symmetry_Imma
 )
 set(SubTests_test_fortran_spg_get_magnetic_dataset
         test_rutile_type_III
