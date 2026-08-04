@@ -77,6 +77,10 @@ linkcheck_ignore = [
     # Cannot check for 403 error only
     r"https://doi.org/10.1002/qua.20747",
     r"https://doi.org/10.1080/27660400.2024.2384822",
+    # GitHub-hosted runners receive HTTP 403 from cppreference.
+    r"https://en\.cppreference\.com/c/11",
+    # This external PDF host intermittently times out in linkcheck jobs.
+    r"https://www\.math\.ru\.nl/~souvi/krist_09/cryst\.pdf",
     # Getting 403 error (maybe because cloudflare)
     r"https://.*\.iucr.org/",
     # No need to check these
