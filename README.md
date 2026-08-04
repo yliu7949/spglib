@@ -120,6 +120,13 @@ defaulting to a bundled version.
 For more details and how to build the python project from source, see the
 [python documentation](python/README.rst).
 
+### MATLAB interface (fork extension)
+
+This fork provides a MATLAB package and MEX interface. Configure it together
+with the C library using `-DSPGLIB_WITH_MATLAB=ON`, or build it separately
+against an installed Spglib package. See the [MATLAB build and usage
+instructions](matlab/README.md).
+
 ### How to manually compile
 
 The minimum configuration, build and install instructions are as follows:

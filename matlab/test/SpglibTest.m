@@ -1,38 +1,33 @@
 classdef SpglibTest < matlab.unittest.TestCase
 
     methods (Test)
-        function getVersionTest(~)
+        function getVersionTest(testCase)
             version = kssolv.analysis.spglib.Spglib.getVersion();
-            disp(version);
+            testCase.verifyNotEmpty(regexp(version, '^\d+\.\d+\.\d+', 'once'));
         end
 
-        function getVersionFullTest(~)
+        function getVersionFullTest(testCase)
             versionFull = kssolv.analysis.spglib.Spglib.getVersion("full");
-            disp(versionFull);
+            version = kssolv.analysis.spglib.Spglib.getVersion();
+            testCase.verifyTrue(startsWith(versionFull, version));
         end
 
-        function getMajorVersionTest(~)
-            version = kssolv.analysis.spglib.Spglib.getVersion("major");
-            disp(version);
+        function getNumericVersionTest(testCase)
+            version = sscanf(kssolv.analysis.spglib.Spglib.getVersion(), '%d.%d.%d');
+            testCase.verifyEqual(kssolv.analysis.spglib.Spglib.getVersion("major"), version(1));
+            testCase.verifyEqual(kssolv.analysis.spglib.Spglib.getVersion("minor"), version(2));
+            testCase.verifyEqual(kssolv.analysis.spglib.Spglib.getVersion("micro"), version(3));
         end
 
-        function getMinorVersionTest(~)
-            version = kssolv.analysis.spglib.Spglib.getVersion("minor");
-            disp(version);
-        end
-
-        function getMicroVersionTest(~)
-            version = kssolv.analysis.spglib.Spglib.getVersion("micro");
-            disp(version);
-        end
-
-        function getCommitTest(~)
+        function getCommitTest(testCase)
             commit = kssolv.analysis.spglib.Spglib.getCommit();
-            disp(commit);
+            testCase.verifyNotEmpty(commit);
         end
 
-        function getErrorCodeTest(~)
-            disp(kssolv.analysis.spglib.Spglib.getErrorCode());
+        function getErrorCodeTest(testCase)
+            errorCode = kssolv.analysis.spglib.Spglib.getErrorCode();
+            testCase.verifyClass(errorCode, 'kssolv.analysis.spglib.SpglibError');
+            testCase.verifyEqual(errorCode, kssolv.analysis.spglib.SpglibError.SPGLIB_SUCCESS);
         end
 
         function getErrorMessageTest(testCase)
@@ -418,6 +413,18 @@ classdef SpglibTest < matlab.unittest.TestCase
         function getSpacegroupTypeTest(testCase)
             spacegroup = kssolv.analysis.spglib.Spglib.getSpacegroupType(446);
             testCase.assertEqual(spacegroup.number, 156);
+        end
+
+        function arithmeticCrystalClassesTest(testCase)
+            % Regression test for the spglib 2.7.1 fix for space groups
+            % 187--190 (Hall numbers 481--484).
+            expectedNumbers = [56, 56, 57, 57];
+            expectedSymbols = ["-6m2P", "-6m2P", "-62mP", "-62mP"];
+            for index = 1:4
+                spacegroup = kssolv.analysis.spglib.Spglib.getSpacegroupType(480 + index);
+                testCase.verifyEqual(spacegroup.arithmetic_crystal_class_number, expectedNumbers(index));
+                testCase.verifyEqual(strtrim(string(spacegroup.arithmetic_crystal_class_symbol)), expectedSymbols(index));
+            end
         end
 
         function getMagneticSpacegroupType(testCase)

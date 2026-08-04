@@ -39,6 +39,7 @@ endif ()
 
 #
 option(SPGLIB_WITH_Fortran "Spglib: Build Fortran interface" OFF)
+option(SPGLIB_WITH_MATLAB "Spglib: Build MATLAB interface" OFF)
 option(SPGLIB_WITH_Python "Spglib: Build Python interface" OFF)
 option(SPGLIB_USE_OMP "Spglib: Build with OpenMP support" OFF)
 option(SPGLIB_WITH_TESTS "Spglib: Build unit tests" ${PROJECT_IS_TOP_LEVEL})
@@ -121,6 +122,9 @@ if (NOT TARGET Spglib::fortran AND SPGLIB_WITH_Fortran)
 endif ()
 if (NOT TARGET Spglib::python AND SPGLIB_WITH_Python)
     add_subdirectory(python)
+endif ()
+if (SPGLIB_WITH_MATLAB)
+    add_subdirectory(matlab)
 endif ()
 
 # Testing

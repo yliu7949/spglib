@@ -27,7 +27,7 @@ classdef Spglib
 
         function error_code = getErrorCode()
             error_code = kssolv.analysis.spglib.symspg('spg_get_error_code');
-            kssolv.analysis.spglib.SpglibError(error_code);
+            error_code = kssolv.analysis.spglib.SpglibError(error_code);
         end
 
         function error_message = getErrorMessage(error_code)
