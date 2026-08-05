@@ -1,3 +1,5 @@
+#include <cmath>
+#include <limits>
 #include <string>
 #include <unordered_map>
 #include "dataset_converter.hpp"
@@ -131,6 +133,31 @@ void throwLastSpglibError(char const *operation) {
     SpglibError const error = spg_get_error_code();
     mexErrMsgIdAndTxt("Spglib:spglibError", "%s: %s", operation,
                       spg_get_error_message(error));
+}
+
+int checkedSizeToInt(mwSize const value, char const *name) {
+    if (value > static_cast<mwSize>(std::numeric_limits<int>::max())) {
+        mexErrMsgIdAndTxt("Spglib:dimensionTooLarge",
+                          "%s exceeds the range supported by spglib.", name);
+    }
+    return static_cast<int>(value);
+}
+
+int checkedNonnegativeIntScalar(mxArray const *value, char const *name) {
+    if (!mxIsNumeric(value) || mxIsComplex(value) ||
+        mxGetNumberOfElements(value) != 1) {
+        mexErrMsgIdAndTxt("Spglib:invalidCount",
+                          "%s must be a real numeric scalar.", name);
+    }
+
+    double const scalar = mxGetScalar(value);
+    if (!std::isfinite(scalar) || scalar < 0 || std::floor(scalar) != scalar ||
+        scalar > static_cast<double>(std::numeric_limits<int>::max())) {
+        mexErrMsgIdAndTxt(
+            "Spglib:invalidCount",
+            "%s must be a nonnegative integer supported by spglib.", name);
+    }
+    return static_cast<int>(scalar);
 }
 
 void validateNumAtoms(mxArray const *value, mwSize const expected) {
@@ -418,7 +445,7 @@ void SpglibFunctions::spg_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
         }
     }
 
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -431,7 +458,7 @@ void SpglibFunctions::spg_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
         }
     }
 
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -495,7 +522,7 @@ void SpglibFunctions::spg_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -509,7 +536,7 @@ void SpglibFunctions::spg_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -587,7 +614,7 @@ void SpglibFunctions::spgms_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -601,7 +628,7 @@ void SpglibFunctions::spgms_get_magnetic_dataset_mex(int nlhs, mxArray *plhs[],
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -686,7 +713,7 @@ void SpglibFunctions::spgat_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -700,7 +727,7 @@ void SpglibFunctions::spgat_get_dataset_mex(int nlhs, mxArray *plhs[], int nrhs,
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -764,7 +791,7 @@ void SpglibFunctions::spg_get_dataset_with_hall_number_mex(
         }
     }
 
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -777,7 +804,7 @@ void SpglibFunctions::spg_get_dataset_with_hall_number_mex(
         }
     }
 
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -841,7 +868,7 @@ void SpglibFunctions::spgat_get_dataset_with_hall_number_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[1]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[1]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -855,7 +882,7 @@ void SpglibFunctions::spgat_get_dataset_with_hall_number_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[2]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -935,7 +962,7 @@ void SpglibFunctions::spg_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -949,7 +976,7 @@ void SpglibFunctions::spg_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -960,7 +987,7 @@ void SpglibFunctions::spg_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the spins argument
-    if (mxGetNumberOfElements(prhs[4]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[4]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidSpins",
                           "Spins array size must match the number of atoms.");
     }
@@ -1070,7 +1097,7 @@ void SpglibFunctions::spgat_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -1084,7 +1111,7 @@ void SpglibFunctions::spgat_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -1095,7 +1122,7 @@ void SpglibFunctions::spgat_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the spins argument
-    if (mxGetNumberOfElements(prhs[4]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[4]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidSpins",
                           "Spins array size must match the number of atoms.");
     }
@@ -1213,7 +1240,7 @@ void SpglibFunctions::spgms_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -1227,7 +1254,7 @@ void SpglibFunctions::spgms_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -1238,7 +1265,7 @@ void SpglibFunctions::spgms_get_symmetry_with_collinear_spin_mex(
     }
 
     // Extract and validate the spins argument
-    if (mxGetNumberOfElements(prhs[4]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[4]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidSpins",
                           "Spins array size must match the number of atoms.");
     }
@@ -1368,7 +1395,7 @@ void SpglibFunctions::spg_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -1382,7 +1409,7 @@ void SpglibFunctions::spg_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -1531,7 +1558,7 @@ void SpglibFunctions::spgat_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -1545,7 +1572,7 @@ void SpglibFunctions::spgat_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -1702,7 +1729,7 @@ void SpglibFunctions::spgms_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the position argument
-    int num_atom = mxGetM(prhs[2]);
+    int const num_atom = checkedSizeToInt(mxGetM(prhs[2]), "num_atom");
     mexutil::Buffer2D<double, 3> position(num_atom);
     if (mxGetN(prhs[2]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidPosition",
@@ -1716,7 +1743,7 @@ void SpglibFunctions::spgms_get_symmetry_with_site_tensors_mex(
     }
 
     // Extract and validate the types argument
-    if (mxGetNumberOfElements(prhs[3]) != num_atom) {
+    if (mxGetNumberOfElements(prhs[3]) != static_cast<mwSize>(num_atom)) {
         mexErrMsgIdAndTxt("Spglib:invalidTypes",
                           "Types array size must match the number of atoms.");
     }
@@ -1850,7 +1877,8 @@ void SpglibFunctions::spg_get_spacegroup_type_from_symmetry_mex(
 
     // Extract and validate the rotation argument
     mwSize const *dims = mxGetDimensions(prhs[0]);
-    int num_operations = dims[0];  // Value of N
+    int const num_operations =
+        checkedSizeToInt(dims[0], "num_operations");  // Value of N
     if (dims[1] != 3 || dims[2] != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidRotation",
                           "Rotation matrix must have dimensions Nx3x3.");
@@ -1870,7 +1898,8 @@ void SpglibFunctions::spg_get_spacegroup_type_from_symmetry_mex(
 
     // Extract and validate the translation argument
     mexutil::Buffer2D<double, 3> translation(num_operations);
-    if (mxGetM(prhs[1]) != num_operations || mxGetN(prhs[1]) != 3) {
+    if (mxGetM(prhs[1]) != static_cast<mwSize>(num_operations) ||
+        mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidTranslation",
                           "Translation array must be Nx3.");
     }
@@ -1967,7 +1996,8 @@ void SpglibFunctions::spg_get_magnetic_spacegroup_type_from_symmetry_mex(
 
     // Extract and validate the rotation argument
     mwSize const *dims = mxGetDimensions(prhs[0]);
-    int num_operations = dims[0];  // Value of N
+    int const num_operations =
+        checkedSizeToInt(dims[0], "num_operations");  // Value of N
     if (dims[1] != 3 || dims[2] != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidRotation",
                           "Rotation matrix must have dimensions Nx3x3.");
@@ -1987,7 +2017,8 @@ void SpglibFunctions::spg_get_magnetic_spacegroup_type_from_symmetry_mex(
 
     // Extract and validate the translation argument
     mexutil::Buffer2D<double, 3> translation(num_operations);
-    if (mxGetM(prhs[1]) != num_operations || mxGetN(prhs[1]) != 3) {
+    if (mxGetM(prhs[1]) != static_cast<mwSize>(num_operations) ||
+        mxGetN(prhs[1]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidTranslation",
                           "Translation array must be Nx3.");
     }
@@ -1999,7 +2030,7 @@ void SpglibFunctions::spg_get_magnetic_spacegroup_type_from_symmetry_mex(
     }
 
     // Extract and validate the time_reversals argument
-    if (mxGetNumberOfElements(prhs[2]) != num_operations) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_operations)) {
         mexErrMsgIdAndTxt(
             "Spglib:invalidTimeReversals",
             "Time reversals array size must match the number of operations.");
@@ -2069,7 +2100,7 @@ void SpglibFunctions::spg_get_pointgroup_mex(int nlhs, mxArray *plhs[],
 
     // Extract and validate the rotation argument
     mwSize const *dims = mxGetDimensions(prhs[0]);
-    int num_operations = dims[0];
+    int const num_operations = checkedSizeToInt(dims[0], "num_operations");
     if (dims[1] != 3 || dims[2] != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidRotation",
                           "Rotation matrix must have dimensions Nx3x3.");
@@ -3340,10 +3371,10 @@ void SpglibFunctions::spg_get_stabilized_reciprocal_mesh_mex(
     int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
 
     // Extract and validate the num_rot argument
-    int num_rot = static_cast<int>(mxGetScalar(prhs[3]));
+    int const num_rot = checkedNonnegativeIntScalar(prhs[3], "num_rot");
 
     // Extract and validate the rotations argument
-    if (mxGetNumberOfElements(prhs[4]) != num_rot * 9) {
+    if (mxGetNumberOfElements(prhs[4]) != static_cast<mwSize>(num_rot) * 9) {
         mexErrMsgIdAndTxt("Spglib:invalidRotations",
                           "Rotations must be a num_rot x 3 x 3 array.");
     }
@@ -3359,10 +3390,10 @@ void SpglibFunctions::spg_get_stabilized_reciprocal_mesh_mex(
     }
 
     // Extract and validate the num_q argument
-    int num_q = static_cast<int>(mxGetScalar(prhs[5]));
+    int const num_q = checkedNonnegativeIntScalar(prhs[5], "num_q");
 
     // Extract and validate the qpoints argument
-    if (mxGetM(prhs[6]) != num_q || mxGetN(prhs[6]) != 3) {
+    if (mxGetM(prhs[6]) != static_cast<mwSize>(num_q) || mxGetN(prhs[6]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidQPoints",
                           "Qpoints must be a num_q x 3 array.");
     }
@@ -3448,10 +3479,10 @@ void SpglibFunctions::spg_get_dense_stabilized_reciprocal_mesh_mex(
     int is_time_reversal = static_cast<int>(mxGetScalar(prhs[2]));
 
     // Extract and validate the num_rot argument
-    int num_rot = static_cast<int>(mxGetScalar(prhs[3]));
+    int const num_rot = checkedNonnegativeIntScalar(prhs[3], "num_rot");
 
     // Extract and validate the rotations argument
-    if (mxGetNumberOfElements(prhs[4]) != num_rot * 9) {
+    if (mxGetNumberOfElements(prhs[4]) != static_cast<mwSize>(num_rot) * 9) {
         mexErrMsgIdAndTxt("Spglib:invalidRotations",
                           "Rotations must be a num_rot x 3 x 3 array.");
     }
@@ -3467,10 +3498,10 @@ void SpglibFunctions::spg_get_dense_stabilized_reciprocal_mesh_mex(
     }
 
     // Extract and validate the num_q argument
-    int num_q = static_cast<int>(mxGetScalar(prhs[5]));
+    int const num_q = checkedNonnegativeIntScalar(prhs[5], "num_q");
 
     // Extract and validate the qpoints argument
-    if (mxGetM(prhs[6]) != num_q || mxGetN(prhs[6]) != 3) {
+    if (mxGetM(prhs[6]) != static_cast<mwSize>(num_q) || mxGetN(prhs[6]) != 3) {
         mexErrMsgIdAndTxt("Spglib:invalidQPoints",
                           "Qpoints must be a num_q x 3 array.");
     }
@@ -3546,10 +3577,10 @@ void SpglibFunctions::spg_get_dense_grid_points_by_rotations_mex(
                            address_orig_ptr[2]};
 
     // Extract and validate the num_rot argument
-    int num_rot = static_cast<int>(mxGetScalar(prhs[1]));
+    int const num_rot = checkedNonnegativeIntScalar(prhs[1], "num_rot");
 
     // Extract and validate the rot_reciprocal argument
-    if (mxGetNumberOfElements(prhs[2]) != num_rot * 9) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_rot) * 9) {
         mexErrMsgIdAndTxt("Spglib:invalidRotReciprocal",
                           "Rot_reciprocal must be a num_rot x 3 x 3 array.");
     }
@@ -3618,10 +3649,10 @@ void SpglibFunctions::spg_get_dense_BZ_grid_points_by_rotations_mex(
                            address_orig_ptr[2]};
 
     // Extract and validate the num_rot argument
-    int num_rot = static_cast<int>(mxGetScalar(prhs[1]));
+    int const num_rot = checkedNonnegativeIntScalar(prhs[1], "num_rot");
 
     // Extract and validate the rot_reciprocal argument
-    if (mxGetNumberOfElements(prhs[2]) != num_rot * 9) {
+    if (mxGetNumberOfElements(prhs[2]) != static_cast<mwSize>(num_rot) * 9) {
         mexErrMsgIdAndTxt("Spglib:invalidRotReciprocal",
                           "Rot_reciprocal must be a num_rot x 3 x 3 array.");
     }
